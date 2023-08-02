@@ -8,6 +8,7 @@
 let startTest = () => {
     let demo = document.getElementById('demo');
     let t = readMeUncycle;
-    demo.innerHTML = t();
+    let text = t();
+    demo.innerHTML = text.replace(/\n/g,"<br>");
     testUncycle();
 }
