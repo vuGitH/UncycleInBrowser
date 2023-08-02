@@ -142,4 +142,4 @@ var readMeUncycle = function () {
         '\n';
     console.log(txt);
     return txt;
-};  
+};
