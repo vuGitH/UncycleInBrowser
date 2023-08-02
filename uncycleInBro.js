@@ -313,7 +313,7 @@ var unCycle=
        * Reconstructs objects on the bases of uids values.
        * uil - part of uid of some level (see comment for evStringer method)
        * If first character of uil is a 'letter' - object.
-       * letters content is property's name of 
+       * letters content (member's value) is property's name of member object
        * if first chatacter of uil is a 'digit' - array,
        * the value of digit is index of element of parent array
        * @param {string} uid string of uid value
@@ -335,20 +335,21 @@ var unCycle=
       },
       /**
        * Browses through ojo object properties and subproperties
-       * to replace patches - string whose values are uids -
+       * to replace `patches` - strings whose values are uids -
        * by references from array vals ( unCycle.uiDirect.vals) if any
-       * @param {!string)uid uid value
-       * @param {!string]evStr string to eveluate the variable expression for
+       * @param {!string} uid uid value
+       * @param {!string} evStr string to eveluate the variable expression for
        *   substitution
-       * @param {Object[]| Array[]| } vals array of substitution objects.
+       * @param {Array<Object>| Array<Array>} vals array of substitution objects.
        *   !Here the array as a whole is used as a parameter but not
        *   the element approptiate to uid in <uids> vs <vals> pairs.
        *   val appropriate to uid is val=vals[iv]
        *   Such form permits passing any changes of elements outside
        *   of method function. Change of vals provides of appropriate change
        *   of ojo object
-       * @param {numer|string} iv actual index(or name) of vals element or property
-       * @param {string|number} ip subproperty index or subprperty's name
+       * @param {numer|string} iv actual index(or name) of vals element
+       *   or property
+       * @param {string|number} ip sub-array element index or subprperty's name
        * @return {void}
        */
       darner: function (uid, evStr, ojo, vals, iv, ip) {
