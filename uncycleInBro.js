@@ -91,6 +91,11 @@ var unCycle=
       },
       /**
        * additional methodes used inside addTrio
+       * @param{Object|Arry}o - analysing object
+       * @param{string}pUid - parent uid
+       * @param{string}oId - object identifyer (key) o=pO[oId]
+       * @param{objtct|Array}pO - parent object o=pO[oId]
+       * @return {string} universal identifier for o
        * Explanation and parameters' propperties see
        * in description of addPair method and below
        * in addTrio and uidsVsVal
@@ -139,8 +144,6 @@ var unCycle=
        * @param{string}oId - object identifyer (key) o=pO[oId]
        * @param{objtct|Array}pO - parent object o=pO[oId]
        * @return {string} universal identifier for o
-       *     this method is analog to addPair and is used
-       * beginning with version 0.1.4 ;
        */
       addTrio: function (o, pUid, oId, pO) {
         var oUid, ind;
@@ -188,8 +191,8 @@ var unCycle=
        * @param {Object} pO parent object of o object. Optional
        *     o=pO[oId]should be correct if pO and oId are set (usually oId is
        *     property name)
-       *
-       *  This method forms so called uids Directory object
+       * @return {void} using addTrio method
+       *   This method forms so called uids Directory object
        *   ( abbreviation - uiDirect):
        *   {Object} unCycle.uiDirect containes
        *   {Object string[]} unCycle.uiDirect.uids - array of all uids
@@ -224,7 +227,7 @@ var unCycle=
           }
         }());
         var oUid, ip, ia;
-        oUid = this.addTrio(o, pUid, oId, pO); // analog of this.addPair(o,pUid,oId,pO) in versions <0.1.4
+        oUid = this.addTrio(o, pUid, oId, pO);
 
         if (!pO || oId === undefined) {
           if (this.isOb(o)) {
@@ -300,7 +303,7 @@ var unCycle=
           return evalStr;
         } else if (/^[0-9]+$/.test(uil)) {
           return evalStr + '[' + uil + ']';
-        } else if (/^\w+/.test(uil)) {
+        } else if (/^\w+/.test(uil) && !/^[0-9]+$/.test(uil)) {
           return evalStr + '["' + uil + '"]';
         } else {
           throw 'something is going wrong in evStringer';
@@ -310,13 +313,13 @@ var unCycle=
        * Reconstructs objects on the bases of uids values.
        * uil - part of uid of some level (see comment for evStringer method)
        * If first character of uil is a 'letter' - object.
-       * letters content is property's name of
+       * letters content is property's name of 
        * if first chatacter of uil is a 'digit' - array,
-       * the value of digit is index of element
+       * the value of digit is index of element of parent array
        * @param {string} uid string of uid value
        * @param {Object} ojo - object of modification. Could be the result of
        *   reverse json confersion o->oj->ojo o -> json.stringify -> json.parse
-       * @param {string} opt_objVarLiteral string expressing object vareable literals
+       * @param {string} opt_objVarLiteral string expressing object variable literals
        *   (for ex. if object variable is var obj={} literal string is 'obj'. Optional.
        *   Default is 'ojo'
        */
@@ -407,7 +410,7 @@ var unCycle=
        * sets and darns (replaces) patches (uid strings as values)
        * @param {Object} ojo object possibly parsed after serialization
        * @param {Object} ud unCycle.uiDirect object of unCyle object
-       * @param {string} opt_objVarLiteral - see getEvString description
+       * @param {string} opt_objVarLiteral - see @getEvString description
        * return {Object}
        */
       darn: function (ojo, ud, opt_objVarLiteral) {
@@ -424,7 +427,8 @@ var unCycle=
       /**
        * Forms variable invoking property or element assosiating with uid specified.
        * Reconstructs object's ojo subobject on the bases of uids values
-       * If first character of uil is a 'letter' - subproperty value is object and
+       * If first character of uil is a 'letter'(/^([a-z]|[A-Z])/) - 
+       * subproperty value is object and
        * letters content is property's name of this subproperty
        * If first character of uil is a 'digit' - array,
        * and the value of digit is index of element
@@ -448,6 +452,11 @@ var unCycle=
       },
       /**
        * recursive adder of index appropriate uil and il
+       * @param {object} ojo
+       * @param {object|Array<>} oRef 
+       * @param {string|number} uil part of uid appropriate to level il
+       * @param {number} il level index. Level describes the subproperty
+       *     inclosure order 
        */
       oRefer: function (ojo, oRef, uil, il) {
         var prefx;
