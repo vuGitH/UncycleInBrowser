@@ -138,6 +138,7 @@ var unCycle=
        * @param{string}pUid - parent uid
        * @param{string}oId - object identifyer (key) o=pO[oId]
        * @param{objtct|Array}pO - parent object o=pO[oId]
+       * @return {string} universal identifier for o
        *     this method is analog to addPair and is used
        * beginning with version 0.1.4 ;
        */
@@ -167,7 +168,7 @@ var unCycle=
        * Forms the Directory of pairs <uids> vs <values>
        * so called <uiDirect> - uids directory
        * @param {Object|Array} o object or array being analysed
-       * @param {string} pUid univeral identifyer of parent object. Optional
+       * @param {string} pUid universal identifyer of parent object. Optional
        * @param {string} opt_oId analysing object's identifyer.  Optional.
        *     uid - universal identifyer:
        *     in common for any object( or array) in hierarchical structure
@@ -1026,10 +1027,10 @@ var unCycle=
        * @param {Array} kvn - 2d-array [[key,value,newValue]] formed in
        *   unCycle.filter method
        * @param {number} ir index of kvn row should be taking to modify ojo
-       // Замечание. Процедура учитывает не только возможность
-       // уникального значение свойства, но и ситуацию, когда
-       // несколько подобъектов имеют одинаковые значения.
-       // Для этого организован цикл while
+       // Ð—Ð°Ð¼ÐµÑ‡Ð°Ð½Ð¸Ðµ. ÐŸÑ€Ð¾Ñ†ÐµÐ´ÑƒÑ€Ð° ÑƒÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÑ‚ Ð½Ðµ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ÑÑ‚ÑŒ
+       // ÑƒÐ½Ð¸ÐºÐ°Ð»ÑŒÐ½Ð¾Ð³Ð¾ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð°, Ð½Ð¾ Ð¸ ÑÐ¸Ñ‚ÑƒÐ°Ñ†Ð¸ÑŽ, ÐºÐ¾Ð³Ð´Ð°
+       // Ð½ÐµÑÐºÐ¾Ð»ÑŒÐºÐ¾ Ð¿Ð¾Ð´Ð¾Ð±ÑŠÐµÐºÑ‚Ð¾Ð² Ð¸Ð¼ÐµÑŽÑ‚ Ð¾Ð´Ð¸Ð½Ð°ÐºÐ¾Ð²Ñ‹Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ.
+       // Ð”Ð»Ñ ÑÑ‚Ð¾Ð³Ð¾ Ð¾Ñ€Ð³Ð°Ð½Ð¸Ð·Ð¾Ð²Ð°Ð½ Ñ†Ð¸ÐºÐ» while
        * Procedure eleborates not only unique property whose value satisfies
        * selection criterion but multiple cases as well. e.g. when
        * there are few properties which value are equal to uid and therefore
@@ -1068,7 +1069,7 @@ var unCycle=
               // -- console.log('Error inside try:'+e );
             }*/
             if (cutUiDirect) {
-              // !!?? надо ли удалять соответствующие свойства и массивы в uiDirect??!!
+              // !!?? Ð½Ð°Ð´Ð¾ Ð»Ð¸ ÑƒÐ´Ð°Ð»ÑÑ‚ÑŒ ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ðµ ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð° Ð¸ Ð¼Ð°ÑÑÐ¸Ð²Ñ‹ Ð² uiDirect??!!
               this.uiDirect.vals.splice(jVal, 1);
               this.uiDirect.uids.splice(jVal, 1);
               this.uiDirect.oids.splice(jVal, 1);
@@ -1108,12 +1109,12 @@ var unCycle=
         }
       },
       /**
-       * процедурa uidValRepl( ojo,uidAsVal,newVal,ud)
-       * проверяет, не осталось ли  в ojo среди свойств типа object
-       * и  array каких-либо свойств или элементов массивов, чьим значениям
-       * присвоены строковое значение  uidAsVal (способ кодировки ссылки
-       * на элемент с данным uid), равное uid-у, либо удаляемого, либо изменяемого
-       *  свойства. (алгоритм поиска: в ojo ищем свойства и подсвойства === uid )
+       * Ð¿Ñ€Ð¾Ñ†ÐµÐ´ÑƒÑ€a uidValRepl( ojo,uidAsVal,newVal,ud)
+       * Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÑ‚, Ð½Ðµ Ð¾ÑÑ‚Ð°Ð»Ð¾ÑÑŒ Ð»Ð¸  Ð² ojo ÑÑ€ÐµÐ´Ð¸ ÑÐ²Ð¾Ð¹ÑÑ‚Ð² Ñ‚Ð¸Ð¿Ð° object
+       * Ð¸  array ÐºÐ°ÐºÐ¸Ñ…-Ð»Ð¸Ð±Ð¾ ÑÐ²Ð¾Ð¹ÑÑ‚Ð² Ð¸Ð»Ð¸ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð¾Ð² Ð¼Ð°ÑÑÐ¸Ð²Ð¾Ð², Ñ‡ÑŒÐ¸Ð¼ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸ÑÐ¼
+       * Ð¿Ñ€Ð¸ÑÐ²Ð¾ÐµÐ½Ñ‹ ÑÑ‚Ñ€Ð¾ÐºÐ¾Ð²Ð¾Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ  uidAsVal (ÑÐ¿Ð¾ÑÐ¾Ð± ÐºÐ¾Ð´Ð¸Ñ€Ð¾Ð²ÐºÐ¸ ÑÑÑ‹Ð»ÐºÐ¸
+       * Ð½Ð° ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚ Ñ Ð´Ð°Ð½Ð½Ñ‹Ð¼ uid), Ñ€Ð°Ð²Ð½Ð¾Ðµ uid-Ñƒ, Ð»Ð¸Ð±Ð¾ ÑƒÐ´Ð°Ð»ÑÐµÐ¼Ð¾Ð³Ð¾, Ð»Ð¸Ð±Ð¾ Ð¸Ð·Ð¼ÐµÐ½ÑÐµÐ¼Ð¾Ð³Ð¾
+       *  ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð°. (Ð°Ð»Ð³Ð¾Ñ€Ð¸Ñ‚Ð¼ Ð¿Ð¾Ð¸ÑÐºÐ°: Ð² ojo Ð¸Ñ‰ÐµÐ¼ ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð° Ð¸ Ð¿Ð¾Ð´ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð° === uid )
        * 1.gets uid specified - uidAsVal
        * 2. going from the end to the beginning(from the last to the first)
        * by array unCycle.uiDirect.vals which is the array of values of
@@ -1126,11 +1127,11 @@ var unCycle=
        * or 'newValue' or 'delete'. Such exchange is not doing when the
        * property name  is 'uid'.
        *   newValue===kvn[2]
-       * После того, как такое присвоение (либо undefined, либо newValue) будет
-       * сделано, измененные таким образом подобъекты или элементы (под)массивов
-       * не попадут под действие circularize.
-       * !!! эти присвоения должны быть сделаны до физического удаления
-       * свойств объекта( если их позволяют установки обработчика)
+       * ÐŸÐ¾ÑÐ»Ðµ Ñ‚Ð¾Ð³Ð¾, ÐºÐ°Ðº Ñ‚Ð°ÐºÐ¾Ðµ Ð¿Ñ€Ð¸ÑÐ²Ð¾ÐµÐ½Ð¸Ðµ (Ð»Ð¸Ð±Ð¾ undefined, Ð»Ð¸Ð±Ð¾ newValue) Ð±ÑƒÐ´ÐµÑ‚
+       * ÑÐ´ÐµÐ»Ð°Ð½Ð¾, Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð½Ñ‹Ðµ Ñ‚Ð°ÐºÐ¸Ð¼ Ð¾Ð±Ñ€Ð°Ð·Ð¾Ð¼ Ð¿Ð¾Ð´Ð¾Ð±ÑŠÐµÐºÑ‚Ñ‹ Ð¸Ð»Ð¸ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ñ‹ (Ð¿Ð¾Ð´)Ð¼Ð°ÑÑÐ¸Ð²Ð¾Ð²
+       * Ð½Ðµ Ð¿Ð¾Ð¿Ð°Ð´ÑƒÑ‚ Ð¿Ð¾Ð´ Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ circularize.
+       * !!! ÑÑ‚Ð¸ Ð¿Ñ€Ð¸ÑÐ²Ð¾ÐµÐ½Ð¸Ñ Ð´Ð¾Ð»Ð¶Ð½Ñ‹ Ð±Ñ‹Ñ‚ÑŒ ÑÐ´ÐµÐ»Ð°Ð½Ñ‹ Ð´Ð¾ Ñ„Ð¸Ð·Ð¸Ñ‡ÐµÑÐºÐ¾Ð³Ð¾ ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ñ
+       * ÑÐ²Ð¾Ð¹ÑÑ‚Ð² Ð¾Ð±ÑŠÐµÐºÑ‚Ð°( ÐµÑÐ»Ð¸ Ð¸Ñ… Ð¿Ð¾Ð·Ð²Ð¾Ð»ÑÑŽÑ‚ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ¸ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ñ‡Ð¸ÐºÐ°)
        * searches if some properties had been assigned to uidAsVal string value
        *  and reassigns them to newVal
        *
@@ -1257,12 +1258,12 @@ var unCycle=
  * return {undefined|value|newValue=} [value]
 
 
-!!! Важное замечание !!! при преобразовании из json литерала --> JSON.pars(json)
-лучше использовать вариант json с сохраненными значениями свойств uid
-это дает дополнительные возможности при работе с функцией reviver, так как
-значение uid  уникально и доступно внутри функции reviver(key,value) как
-свойство value.uid, т.е. позволяет однозначно идентифицировать элемент при
-переборе цикла parse индивидуальных элементов.
+!!! Ð’Ð°Ð¶Ð½Ð¾Ðµ Ð·Ð°Ð¼ÐµÑ‡Ð°Ð½Ð¸Ðµ !!! Ð¿Ñ€Ð¸ Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·Ð¾Ð²Ð°Ð½Ð¸Ð¸ Ð¸Ð· json Ð»Ð¸Ñ‚ÐµÑ€Ð°Ð»Ð° --> JSON.pars(json)
+Ð»ÑƒÑ‡ÑˆÐµ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÑŒ Ð²Ð°Ñ€Ð¸Ð°Ð½Ñ‚ json Ñ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð½Ñ‹Ð¼Ð¸ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸ÑÐ¼Ð¸ ÑÐ²Ð¾Ð¹ÑÑ‚Ð² uid
+ÑÑ‚Ð¾ Ð´Ð°ÐµÑ‚ Ð´Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ðµ Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ÑÑ‚Ð¸ Ð¿Ñ€Ð¸ Ñ€Ð°Ð±Ð¾Ñ‚Ðµ Ñ Ñ„ÑƒÐ½ÐºÑ†Ð¸ÐµÐ¹ reviver, Ñ‚Ð°Ðº ÐºÐ°Ðº
+Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ uid  ÑƒÐ½Ð¸ÐºÐ°Ð»ÑŒÐ½Ð¾ Ð¸ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð½Ð¾ Ð²Ð½ÑƒÑ‚Ñ€Ð¸ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸ reviver(key,value) ÐºÐ°Ðº
+ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð¾ value.uid, Ñ‚.Ðµ. Ð¿Ð¾Ð·Ð²Ð¾Ð»ÑÐµÑ‚ Ð¾Ð´Ð½Ð¾Ð·Ð½Ð°Ñ‡Ð½Ð¾ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚ Ð¿Ñ€Ð¸
+Ð¿ÐµÑ€ÐµÐ±Ð¾Ñ€Ðµ Ñ†Ð¸ÐºÐ»Ð° parse Ð¸Ð½Ð´Ð¸Ð²Ð¸Ð´ÑƒÐ°Ð»ÑŒÐ½Ñ‹Ñ… ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð¾Ð².
  */
 /**
  * A sample of user reviver function is used for testing object handling !!
