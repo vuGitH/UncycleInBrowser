@@ -6,45 +6,78 @@
 */
 // uncycle.js
 //exports.handler =
+/** 
+* @typedef {Object|Array} SourceO with any kinds of members
+* @typedef {Object|Array} SerializableO object with all memebers 
+*     serializable.
+* @typedef {Object|Array} Hampered non serializable member entity
+* @typedef {SerializableO|Hampered} MemberO
+* @typedef {string} Uid universal identifier
+* @typedef {string} Oid object identifier
+* @typedef {Uid[]} Uids universal identifier
+* @typedef {Array<Oid>} Oids object identifier
+* @typedef {Object} StdObject is not Array
+  @typedef {StdObject} NotArray synonim of StdObject
+* @typedef {StdObject|Array} Val member value object or array
+* @typedef {Array<Val>} Vals members' values objects and arrays
+* @typedef {{
+*     vals: Vals,
+*     uids: Uids,
+*     oids: Oids,
+*     showUids: boolean,
+*     uidsUndefined: boolean,
+*     noDelete: boolean,
+*     resetData: function():void
+* }} UidsDirectory uids Directory Object
+*      uid - universal identifyer:
+*     in common for any object( or array) in hierarchical structure
+*     uid = pUid +'#'+ oId; o=pO[oId]. where
+*     o - child member(object or array) of parent object pO
+*     uid - unversal identifier of o child
+*     oId - child identifier
+*     pUid - univeral identifier of parent object
+*     Suppose Us is the top root object of whole structure(object
+*     of structure itself (Universe)
+*     in this case his uid is '#' )
+*     We can get any structure's element by means of o=Us[uid].
+*     At the same time, for arbitrary object the role of Us plays
+*     the object itself relative to subobjects and subarrays being it's
+*     properties (if we consider the object and it's properies who are
+*     objects and/or arrays)
+* @typedef {Uid} ParentUid uid of parent Object
+* @typedef {object|Boolean|Date|Number|RegExp|String} Any parameter
+*/
 var unCycle=
   (function () {
     return {
       /**
-       * check if parameter is ordinary object
-       * @param {} par parameter
+       * check if parameter is ordinary object and not an Array
+       * @param {Any} par parameter
        * @return {Boolean} true in positive check, false otherwise
        */
       isOb: function (par) {
-        if (
-          typeof par === 'object' && par !== null &&
+        return typeof par === 'object' && par !== null &&
           !(Array.isArray(par)) &&
           !(par instanceof Boolean) &&
           !(par instanceof Date) &&
           !(par instanceof Number) &&
           !(par instanceof RegExp) &&
-          !(par instanceof String)) {
-          return true;
-        }
-        return false;
+          !(par instanceof String);
       },
       /**
-       * check if parameter is an array
-       * @param {}par parameter
+       * check if parameter is an Array
+       * @param {Any}par parameter
        * @return {Boolean} true in positive check, false otherwise
        */
       isAr: function (par) {
-        if (Array.isArray(par)) {
-          return true;
-        }
-        return false;
-      },
+        return Array.isArray(par);},
       /**
        * Sets uid
-       * @param {string} opt_parentUid
-       * @param {string|number} opt_oId - block id like property name or array's
+       * @param {ParentUid=} opt_parentUid
+       * @param {Oid=} opt_oId - block id like property name or array's
        *     element's index
        * @param {Object} opt_o object of analysing object if it's not an array
-       * @return {string} universal identifier
+       * @return {Uid} universal identifier
        */
       setUid: function (opt_parentUid, opt_oId, opt_o) {
         var pUid = (opt_parentUid || opt_parentUid === 0) ? opt_parentUid : '';
@@ -57,6 +90,7 @@ var unCycle=
             return '';
           }
         }());
+        /** @type {Uid} */
         var uid = pUid + "#" + oId;
         if (opt_o) {
           opt_o.uid = uid;
@@ -66,6 +100,7 @@ var unCycle=
       /**
        * uids Directory
        */
+      /** @type {UidsDirectory} */
       uiDirect: {
         vals: [],
         uids: [],
@@ -91,13 +126,12 @@ var unCycle=
       },
       /**
        * additional methodes used inside addTrio
-       * @param{Object|Arry}o - analysing object
-       * @param{string}pUid - parent uid
-       * @param{string}oId - object identifyer (key) o=pO[oId]
-       * @param{objtct|Array}pO - parent object o=pO[oId]
-       * @return {string} universal identifier for o
+       * @param {Val} o - analysing object
+       * @param {Uid} pUid - parent uid
+       * @param {Oid} oId - object identifyer (key) o=pO[oId]
+       * @param {Val} pO - parent object o=pO[oId]
+       * @return {Uid} universal identifier for o
        * Explanation and parameters' propperties see
-       * in description of addPair method and below
        * in addTrio and uidsVsVal
        */
       triO: function (o, pUid, oId, pO) {
@@ -139,11 +173,11 @@ var unCycle=
       },
       /**
        * adds pairs into uids Directory
-       * @param{Object|Arry}o - analysing object
-       * @param{string}pUid - parent uid
-       * @param{string}oId - object identifyer (key) o=pO[oId]
-       * @param{objtct|Array}pO - parent object o=pO[oId]
-       * @return {string} universal identifier for o
+       * @param {Val} o - analysing object
+       * @param {Uid} pUid - parent uid
+       * @param {string} oId - object identifyer (key) o=pO[oId]
+       * @param {StdObject} pO - parent object o=pO[oId]
+       * @return {Uid} universal identifier for o
        */
       addTrio: function (o, pUid, oId, pO) {
         var oUid, ind;
@@ -166,37 +200,15 @@ var unCycle=
       },
       /**
        * Calculates and assigns universal identifiers (uids) to
-       * objects and arrays being values of properties and subproperties
-       * of analysing object( or elements of analysing arrays).
+       * objects and arrays' elements being values of properties and 
+       * subproperties of analysing object( or elements of analysing arrays).
        * Forms the Directory of pairs <uids> vs <values>
        * so called <uiDirect> - uids directory
-       * @param {Object|Array} o object or array being analysed
-       * @param {string} pUid universal identifyer of parent object. Optional
-       * @param {string} opt_oId analysing object's identifyer.  Optional.
-       *     uid - universal identifyer:
-       *     in common for any object( or array) in hierarchical structure
-       *     uid = pUid +'#'+ oId; o=pO[oId]. where
-       *     o - child member(object or array) of parent object pO
-       *     uid - unversal identifier of o child
-       *     oId - child identifier
-       *     pUid - univeral identifier of parent object
-       *     Suppose Us is the top root object of whole structure(object
-       *     of structure itself (Universe)
-       *     in this case his uid is '#' )
-       *     We can get any structure's element by means of o=Us[uid].
-       *     At the same time, for arbitrary object the role of Us plays
-       *     the object itself relative to subobjects and subarrays being it's
-       *     properties (if we consider the object and it's properies who are
-       *     objects and/or arrays)
-       * @param {Object} pO parent object of o object. Optional
-       *     o=pO[oId]should be correct if pO and oId are set (usually oId is
-       *     property name)
-       * @return {void} using addTrio method
-       *   This method forms so called uids Directory object
+       *   This method forms so called UidsDirectory object
        *   ( abbreviation - uiDirect):
-       *   {Object} unCycle.uiDirect containes
-       *   {Object string[]} unCycle.uiDirect.uids - array of all uids
-       *   {Object *[]} unCycle.uiDirect.vals - array of vlaues appropriate to each uid
+       *   {UidsDirectory} unCycle.uiDirect containes
+       *   {Uids} unCycle.uiDirect.uids - array of all uids
+       *   {Vals} unCycle.uiDirect.vals - array of vlaues appropriate to each uid
        *   from unCycle.uiDirect.uids.
        *   Any value associated with concrete i-th uid could be got by means of
        *   value=unCycle.uiDirect[uid],   where
@@ -204,6 +216,14 @@ var unCycle=
        *     i is index of arrays   0=< i < unCycle.uiDirect.vals.length;
        *     unCycle.uiDirect.vals.length === unCycle.uiDirect.uids.length
        *     order of uids corresponds to order of vals
+       * @param {Val} o object or array being analysed
+       * @param {Uid} opt_pUid universal identifyer of parent object. Optional
+       * @param {Oid} opt_oId analysing object's identifyer.  Optional.
+       *    
+       * @param {Val} pO parent object of o object. Optional
+       *     o=pO[oId] should be correct if pO and oId are set (usually oId is
+       *     property name)
+       * @return {void} using addTrio method
        */
       uidsVsVals: function (o, opt_pUid, opt_oId, pO) {
         var pUid = (opt_pUid || opt_pUid === 0) ? opt_pUid : (function () {
@@ -259,16 +279,19 @@ var unCycle=
           }
         }
       },
-      /**
+      /** 
+       * @typedef {string} UidPart uid's part of appropriate level
+       *     effectively it's a property name or element index of a
+       *     memer placed on appropriate levle of SourceObj hierarchy
+       * @typedef {string} EvalString string of probable eveluation of
+       *    member value
+       *
        * constructs expression (evalString) used to form object
        * variable literal ( could be used in eval function if any)
        * and sets appropriate object(subobject) value which should be
        * used as insertion into object as value of circular reference
-       * @param {Object|Array}
-       * @param {string} evalString
-       * @param {string} uil - uid's part of appropriating level
        * @example
-       *
+       *    
        *    uid  -     '##c#z#4'    {string}
        *                |
        *    uid parts:  # .. #c .. #z .. 4
@@ -280,15 +303,16 @@ var unCycle=
        *  exists and provides the same results - refer (see below)
        */
 
+
       /**
        * evString assembler - Forms evString using uid's part
-       * @param {Object} ojo object, probably got after sequential
+       * @param {SerializableO} ojo object, probably got after sequential
        *   json transformation: o-> oj=JSON.stringify(o) -> ojo=JSON.parse(oj)
        *   in which appropriate circular reference would be inserted
-       * @param {string} evalStr incrementing string for eval (literal)
-       * @param {string} uil uid's part of level il
+       * @param {EvalString} evalStr incrementing string for eval (literal)
+       * @param {UidPart} uil uid's part of level il
        * @param {number} il index of uils array of uid's parts of actual level
-       * @return {string} string for inserting object  evaluation
+       * @return {EvalString} string for inserting object  evaluation
        */
       evStringer: function (ojo, evalStr, uil, il) {
         var prefx;
@@ -316,16 +340,18 @@ var unCycle=
        * letters content (member's value) is property's name of member object
        * if first chatacter of uil is a 'digit' - array,
        * the value of digit is index of element of parent array
-       * @param {string} uid string of uid value
-       * @param {Object} ojo - object of modification. Could be the result of
-       *   reverse json confersion o->oj->ojo o -> json.stringify -> json.parse
+       * @param {Uid} uid string of uid value
+       * @param {SerializableO} ojo - object of modification. Could be the result of
+       *   reverse json conversion o->oj->ojo o -> json.stringify -> json.parse
        * @param {string} opt_objVarLiteral string expressing object variable literals
        *   (for ex. if object variable is var obj={} literal string is 'obj'. Optional.
        *   Default is 'ojo'
+       * @return {EvalString}
        */
       getEvString: function (uid, ojo, opt_objVarLiteral) {
         var objVarLiteral = opt_objVarLiteral || 'ojo';
         var uils = uid.split('#').slice(1); // uids for levels
+        /** @type {EvalString} */
         var evStr = objVarLiteral;
         for (var il = 0; il < uils.length; il++) {
           var uil = uils[il];
@@ -337,23 +363,24 @@ var unCycle=
        * Browses through ojo object properties and subproperties
        * to replace `patches` - strings whose values are uids -
        * by references from array vals ( unCycle.uiDirect.vals) if any
-       * @param {!string} uid uid value
-       * @param {!string} evStr string to eveluate the variable expression for
+       * @param {!Uid} uid uid value
+       * @param {!EvalString} evStr string to eveluate the variable expression for
        *   substitution
-       * @param {Array<Object>| Array<Array>} vals array of substitution objects.
+       * @param {SerializableO} ojo - object of modification. Could be the result of
+       *   reverse json conversion o->oj->ojo o -> json.stringify -> json.parse
+       * @param {Vals} vals array of substitution objects.
        *   !Here the array as a whole is used as a parameter but not
        *   the element approptiate to uid in <uids> vs <vals> pairs.
        *   val appropriate to uid is val=vals[iv]
        *   Such form permits passing any changes of elements outside
        *   of method function. Change of vals provides of appropriate change
        *   of ojo object
-       * @param {numer|string} iv actual index(or name) of vals element
-       *   or property
+       * @param {number|string} iv actual index of vals element
        * @param {string|number} ip sub-array element index or subprperty's name
        * @return {void}
        */
       darner: function (uid, evStr, ojo, vals, iv, ip) {
-        if (iv === undefined || iv === '') {
+        if (!iv === undefined || iv === '') {
           throw 'iv should be set obligatorily';
         }
         var ia;
@@ -410,8 +437,8 @@ var unCycle=
       /**
        * sets and darns (replaces) patches (uid strings as values)
        * @param {Object} ojo object possibly parsed after serialization
-       * @param {Object} ud unCycle.uiDirect object of unCyle object
-       * @param {string} opt_objVarLiteral - see @getEvString description
+       * @param {UidsDirectory} ud unCycle.uiDirect object of unCyle object
+       * @param {string} opt_objVarLiteral - see getEvString description
        * return {Object}
        */
       darn: function (ojo, ud, opt_objVarLiteral) {
@@ -433,12 +460,14 @@ var unCycle=
        * letters content is property's name of this subproperty
        * If first character of uil is a 'digit' - array,
        * and the value of digit is index of element
-       * @param {string} uid string of uid value
-       * @param {Object} ojo - object of modification. Could be the result of
-       *   reverse json confersion o->oj->ojo o -> json.stringify -> json.parse
+       * @param {Uid} uid string of uid value
+       * @param {SerializableO} ojo - object of modification. Could be the result of
+       *   reverse json conversion o->oj->ojo o -> json.stringify -> json.parse
+       * @return {Val} object value refined
        *
-       *  !!important equation!!: uc.uiDirect[uid]===uc.refer(uid,ojo) if
-       *  uc.uiDirect has been got after uc.uidsVsVals(ojo)
+       *  !!important equation!!:
+       *  unCycle.uiDirect[uid]===unCycle.refer(uid,ojo) if
+       *  unCycle.uiDirect has been got after unCycle.uidsVsVals(ojo)
        *  This means that if uc.refer(uid,ojo)===undefined than nested property
        *  does not exist or connection between uiDirect and ojo has been destroied
        */
@@ -455,7 +484,7 @@ var unCycle=
        * recursive adder of index appropriate uil and il
        * @param {object} ojo
        * @param {object|Array<>} oRef 
-       * @param {string|number} uil part of uid appropriate to level il
+       * @param {UidPart} uil part of uid appropriate to level il
        * @param {number} il level index. Level describes the subproperty
        *     inclosure order 
        */
@@ -482,18 +511,18 @@ var unCycle=
        * browses through ojo object's properties and subproperties
        * to replace patches by reference from array vals
        * ( unCycle.uiDirect.vals) if any
-       * @param {string)uid uid value
-       * @param {string]oRef - cummulative property obtained recursively
+       * @param {Uid} uid uid value
+       * @param {string} oRef - cummulative property obtained recursively
        *     to get value for substitution of string patch
        * @param {Object} ojo object in proccessing
-       * @param {Array.<Object>|Array.<Array>| } vals array of substitution
+       * @param {Vals } vals array of substitution
        *     objects. Here the whole array is used as a parameter but not the
        *     element approptiate to uid in
        *     <uids> vs <vals> pairs.  val appropriating to uid is val=vals[iv]
        *     Such form permits passing any changes of elements outside
        *     of method function. Change of vals provides of appropriate change
        *     of ojo object
-       * @param {numer|string} iv actual index of vals element or property
+       * @param {number|string} iv actual index of vals element or property
        * @param {string|number} ip subproperty index or subproperty's name
        * @return{void}
        */
@@ -573,7 +602,7 @@ var unCycle=
       /**
        * searches for and darns (replaces) uid-like string patches
        * @param {Object} ojo object possibly parsed after serialization
-       * @param {Object} ud unCycle.uiDirect object or uids Directory
+       * @param {UidsDirectory} ud unCycle.uiDirect object or uids Directory
        * return {Object}
        */
       darnRef: function (ojo, ud) {
@@ -609,6 +638,12 @@ var unCycle=
         }
         return ojo;
       },
+      /**
+       * 
+       * @param {*} ojo 
+       * @param {Uid} uid 
+       * @param {UidsDirectory} ud 
+       */
       darnRefByUid: function (ojo, uid, ud) {
         var oRef = this.refer(uid, ojo);
         var iu = ud.uids.indexOf(uid);
@@ -618,9 +653,9 @@ var unCycle=
       },
       /**
        * prepares object to stringify
-       * @param{Object}o - object containing circular reference
+       * @param {Hampered} o - object containing circular reference
        *   needs to be stringified
-       * @return{Object} object to stirngify
+       * @return {SerializableO} object to stirngify
        */
       preStringify: function (o) {
 
@@ -645,52 +680,61 @@ var unCycle=
        * JSON.stringify(o,unCycle.replacer) to stringify
        * objects with circular references
        * parameters key and value is set by definition of JSON.stringify(...)
-       */
-      replacerPre: function (key, value) {
-        if (key === '' || key === undefined || !key && (key !== 0)) {
-          // unCycle.preStringify(value);
-          this.preStringify(value);
-
+       * @param {string} key 
+       * @param {SerializableO} value 
+       * @returns {string}
+      */
+     replacerPre: function (key, value) {
+       if (key === '' || key === undefined || !key && (key !== 0)) {
+         // unCycle.preStringify(value);
+         this.preStringify(value);
+         
         }
         return value;
       },
       /**
-       * @type{function(key,value)} user reviver and replacer functions */
+       * @type {function(string,Val):SerializableO} user reviver and replacer functions */
       replacerUser: undefined,
       reviverUser: undefined,
       /**
        * extending variant of replacer function (inside JSON.stringify(o,replacer))
        * to include typical  modification of json output string determined by
        * user  replacer(key,value) function
-       */
-      replacer: function (key, value) {
-        var uc = unCycle;
-        var replacerSet;
-        if (key === '' || key === undefined || !key && (key !== 0)) {
-          uc.preStringify(value);
+       * @param {string} key 
+       * @param {SerializableO} value 
+       * @returns {string}
+      */
+     replacer: function (key, value) {
+       var uc = unCycle;
+       var replacerSet;
+       if (key === '' || key === undefined || !key && (key !== 0)) {
+         uc.preStringify(value);
         } else {
           try {
             replacerSet = (
-                uc.replacerUser !== undefined &&
-                typeof uc.replacerUser === 'function') ?
+              uc.replacerUser !== undefined &&
+              typeof uc.replacerUser === 'function') ?
               true : false;
-          } catch (e) {
-            if (/(\b\w+\b\s|\s)is not defined/.test(e)) {
-              replacerSet = false;
-            } else {
-              throw (e);
+            } catch (e) {
+              if (/(\b\w+\b\s|\s)is not defined/.test(e)) {
+                replacerSet = false;
+              } else {
+                throw (e);
+              }
+            }
+            if (replacerSet) {
+              return uc.replacerUser(key, value); // user replacer function;
             }
           }
-          if (replacerSet) {
-            return uc.replacerUser(key, value); // user replacer function;
-          }
-        }
-        return value;
-      },
-      /**
-       * extending variant of replacer function (inside JSON.stringify(o,replacer))
-       * to include typical  modification of json output string determined by
-       * user  replacer(key,value) function
+          return value;
+        },
+        /**
+         * extending variant of replacer function (inside JSON.stringify(o,replacer))
+         * to include typical  modification of json output string determined by
+         * user  replacer(key,value) function
+       * @param {string} key 
+       * @param {SerializableO} value 
+       * @returns {string}
        */
       replacerWork: function (key, value) {
         var replacerSet;
@@ -718,29 +762,31 @@ var unCycle=
        * This method does not take into account correction providing in
        * user defined reviver function described in JSON.parse method as
        * second paramter (for this purpose use postParse method below)
-       * @param {Object} ojo object for post parse handling
+       * @param {SerializableO} ojo object for post parse handling
        *   ojo means transformation:
        * o->preStringify(o) ->
        * -> oj=json.stringify(o)->ojo=json.parse(oj)->ojo=postParse(ojo)
        *     ojo conforms o i.e. has identical properties and internal
        *     circular references
-       */
-      afterParse: function (ojo) {
-        this.uiDirect.resetData();
-        this.uidsVsVals(ojo);
-        this.circularize(ojo, this);
-        return ojo;
+       * @return {Hampered}
+      */
+     afterParse: function (ojo) {
+       this.uiDirect.resetData();
+       this.uidsVsVals(ojo);
+       this.circularize(ojo, this);
+       return ojo;
       },
       /**
        * handle object after being parsed to restore circular references
        * and accounting other correction determined by user reviver function,
-       *
-       * @param {Object} ojo object for post-parse handling
-       *   ojo means transformation:
-       *       o-> preStringify(o) -> o // new state of o
-       *        -> oj=json.stringify(o) -> ojo=json.parse(oj)-> ojo=postParse(ojo)
-       * ojo conforms o i.e. has identical properties and internal
-       *   circular references
+      *
+      * @param {SerializableO} ojo object for post-parse handling
+      *   ojo means transformation:
+      *       o-> preStringify(o) -> o // new state of o
+      *        -> oj=json.stringify(o) -> ojo=json.parse(oj)-> ojo=postParse(ojo)
+      * ojo conforms o i.e. has identical properties and internal
+      *   circular references
+       * @return {Hampered}
        */
       postParse: function (ojo) {
         // -- console.log('postParse begins');
