@@ -47,6 +47,8 @@
 * @typedef {Uid} ParentUid uid of parent Object
 * @typedef {object|Boolean|Date|Number|RegExp|String} Any parameter
 */
+/** @typedef {Object} UnCycle */
+/** @type {UnCycle} */
 var unCycle=
   (function () {
     return {
@@ -73,28 +75,17 @@ var unCycle=
         return Array.isArray(par);},
       /**
        * Sets uid
-       * @param {ParentUid=} opt_parentUid
+       * @param {ParentUid=} pUid parent Uid
        * @param {Oid=} opt_oId - block id like property name or array's
        *     element's index
-       * @param {Object} opt_o object of analysing object if it's not an array
+       * @param {Object?} o object of analysing object if it's not an array
        * @return {Uid} universal identifier
        */
-      setUid: function (opt_parentUid, opt_oId, opt_o) {
-        var pUid = (opt_parentUid || opt_parentUid === 0) ? opt_parentUid : '';
-        var oId = (opt_oId || opt_oId === 0) ? opt_oId : (function () {
-          if (opt_o && opt_o.id) {
-            return opt_o.id;
-          } else if (opt_o && opt_o.im) {
-            return opt_o.im;
-          } else {
-            return '';
-          }
-        }());
-        /** @type {Uid} */
+      setUid: function (pUid = '', opt_oId, o) {
+        var oId = (opt_oId || opt_oId === 0) ? opt_oId : 
+        (()=> {return ((o&&o.id)? o.id : ( (o&&o.im)?o.im : ""))})();
         var uid = pUid + "#" + oId;
-        if (opt_o) {
-          opt_o.uid = uid;
-        }
+        if (o) { o.uid = uid; }
         return uid;
       },
       /**
@@ -125,7 +116,7 @@ var unCycle=
         }
       },
       /**
-       * additional methodes used inside addTrio
+       * additional method used inside addTrio ( trio - vals,uids,oids )
        * @param {Val} o - analysing object
        * @param {Uid} pUid - parent uid
        * @param {Oid} oId - object identifyer (key) o=pO[oId]
@@ -172,11 +163,11 @@ var unCycle=
         return oUid;
       },
       /**
-       * adds pairs into uids Directory
-       * @param {Val} o - analysing object
+       * adds  members' data into uids Directory ( trio - vals,uids,oids )
+       * @param {MemberO} o - analysing object
        * @param {Uid} pUid - parent uid
-       * @param {string} oId - object identifyer (key) o=pO[oId]
-       * @param {StdObject} pO - parent object o=pO[oId]
+       * @param {Oid} oId - object identifyer (key) o=pO[oId]
+       * @param {SerializableO|Hampered} pO - parent object o=pO[oId]
        * @return {Uid} universal identifier for o
        */
       addTrio: function (o, pUid, oId, pO) {
@@ -216,37 +207,26 @@ var unCycle=
        *     i is index of arrays   0=< i < unCycle.uiDirect.vals.length;
        *     unCycle.uiDirect.vals.length === unCycle.uiDirect.uids.length
        *     order of uids corresponds to order of vals
-       * @param {Val} o object or array being analysed
+       * @param {MemberO} o object or array being analysed
        * @param {Uid} opt_pUid universal identifyer of parent object. Optional
        * @param {Oid} opt_oId analysing object's identifyer.  Optional.
        *    
-       * @param {Val} pO parent object of o object. Optional
+       * @param {SerializableO|Hampered} pO parent object of o object. Optional
        *     o=pO[oId] should be correct if pO and oId are set (usually oId is
        *     property name)
        * @return {void} using addTrio method
        */
       uidsVsVals: function (o, opt_pUid, opt_oId, pO) {
-        var pUid = (opt_pUid || opt_pUid === 0) ? opt_pUid : (function () {
-          if (pO && pO.im) {
-            return pO.im;
-          } else if (pO && pO.id) {
-            return pO.id;
-          } else if (o.rim) {
-            return o.rim;
-          } else {
-            return '';
-          }
-        }());
-        var oId = (opt_oId || opt_oId === 0) ? opt_oId : (function () {
-          if (o.id) {
-            return o.id;
-          } else if (o.im) {
-            return o.im;
-          } else {
-            return '';
-          }
-        }());
-        var oUid, ip, ia;
+        var pUid, oId, oUid, ip, ia;
+        
+        pUid = (opt_pUid || opt_pUid === 0) ? opt_pUid : 
+            ((pO && pO.im)? pO.im :
+             ((pO && pO.id)? pO.id :
+              ((o.rim)? o.rim : '')));
+
+        oId = (opt_oId || opt_oId === 0) ? opt_oId : 
+            ((o.id)? o.id : ((o.im)? o.im : ''));
+
         oUid = this.addTrio(o, pUid, oId, pO);
 
         if (!pO || oId === undefined) {
@@ -436,10 +416,10 @@ var unCycle=
       },
       /**
        * sets and darns (replaces) patches (uid strings as values)
-       * @param {Object} ojo object possibly parsed after serialization
+       * @param {SerializableO} ojo object possibly parsed after serialization
        * @param {UidsDirectory} ud unCycle.uiDirect object of unCyle object
        * @param {string} opt_objVarLiteral - see getEvString description
-       * return {Object}
+       * @return {SourceO|Hampered}
        */
       darn: function (ojo, ud, opt_objVarLiteral) {
         var oVL = opt_objVarLiteral || 'ojo';
@@ -453,7 +433,8 @@ var unCycle=
         }
       },
       /**
-       * Forms variable invoking property or element assosiating with uid specified.
+       * Returns the value of the subproperty or the element 
+       * assosiating with uid specified.
        * Reconstructs object's ojo subobject on the bases of uids values
        * If first character of uil is a 'letter'(/^([a-z]|[A-Z])/) - 
        * subproperty value is object and
@@ -482,8 +463,8 @@ var unCycle=
       },
       /**
        * recursive adder of index appropriate uil and il
-       * @param {object} ojo
-       * @param {object|Array<>} oRef 
+       * @param {SerializableO} ojo
+       * @param {SerializableO|Hampered} oRef 
        * @param {UidPart} uil part of uid appropriate to level il
        * @param {number} il level index. Level describes the subproperty
        *     inclosure order 
@@ -522,8 +503,8 @@ var unCycle=
        *     Such form permits passing any changes of elements outside
        *     of method function. Change of vals provides of appropriate change
        *     of ojo object
-       * @param {number|string} iv actual index of vals element or property
-       * @param {string|number} ip subproperty index or subproperty's name
+       * @param {number} iv actual index of vals element 
+       * @param {number} ip subproperty index 
        * @return{void}
        */
       refDarner: function (uid, oRef, ojo, vals, iv, ip) {
@@ -601,7 +582,7 @@ var unCycle=
       },
       /**
        * searches for and darns (replaces) uid-like string patches
-       * @param {Object} ojo object possibly parsed after serialization
+       * @param {SerializableO} ojo object possibly parsed after serialization
        * @param {UidsDirectory} ud unCycle.uiDirect object or uids Directory
        * return {Object}
        */
@@ -618,14 +599,14 @@ var unCycle=
       /**
        * circularize
        * searches for and darns (replaces) uid-like string patches
-       * @param {!Object} ojo object possibly parsed after serialization
+       * @param {!SerializableO} ojo object possibly parsed after serialization
        * @param {!Object} h unCycle object
-       * return {Object}
+       * @return {SourceO|Hampered}
        */
       circularize: function (ojo, h) {
         if (this.regStrOn) {
           // var r = require('regstr').regStr;
-          var r = regStr;
+          var r = regStr; // regStr is global
           r.reger(ojo);
         }
         var uid, oRef;
@@ -640,9 +621,10 @@ var unCycle=
       },
       /**
        * 
-       * @param {*} ojo 
+       * @param {SerializableO} ojo 
        * @param {Uid} uid 
-       * @param {UidsDirectory} ud 
+       * @param {UidsDirectory} ud
+       * @return {void}
        */
       darnRefByUid: function (ojo, uid, ud) {
         var oRef = this.refer(uid, ojo);
@@ -653,7 +635,7 @@ var unCycle=
       },
       /**
        * prepares object to stringify
-       * @param {Hampered} o - object containing circular reference
+       * @param {Hampered|SourceO} o - object containing circular reference
        *   needs to be stringified
        * @return {SerializableO} object to stirngify
        */
@@ -670,7 +652,7 @@ var unCycle=
         }
         if (this.regStrOn) {
           //var r = require('regstr').regStr;
-          var r = regStr;
+          var r = regStr;  //regStr instance
           r.streger(o);
         }
         return o;
@@ -682,13 +664,13 @@ var unCycle=
        * parameters key and value is set by definition of JSON.stringify(...)
        * @param {string} key 
        * @param {SerializableO} value 
-       * @returns {string}
+       * @returns {*}
       */
      replacerPre: function (key, value) {
        if (key === '' || key === undefined || !key && (key !== 0)) {
          // unCycle.preStringify(value);
-         this.preStringify(value);
-         
+         var uc = unCycle;
+         uc.preStringify(value);         
         }
         return value;
       },
@@ -731,15 +713,16 @@ var unCycle=
         /**
          * extending variant of replacer function (inside JSON.stringify(o,replacer))
          * to include typical  modification of json output string determined by
-         * user  replacer(key,value) function
+         * user  replacer(key,value) function which has global scope here
        * @param {string} key 
        * @param {SerializableO} value 
        * @returns {string}
        */
       replacerWork: function (key, value) {
         var replacerSet;
+        var uc = unCycle;
         if (key === '' || key === undefined || !key && (key !== 0)) {
-          this.preStringify(value);
+          uc.preStringify(value);
         } else {
           try {
             replacerSet = (replacer && typeof replacer === 'function') ?
@@ -752,7 +735,7 @@ var unCycle=
             }
           }
           if (replacerSet) {
-            return replacer(key, value); // user replacer function;
+            return replacer(key, value); // user replacer function; replacer is global here
           }
         }
         return value;
@@ -760,8 +743,8 @@ var unCycle=
       /**
        * handle object after being parsed to restore circular references
        * This method does not take into account correction providing in
-       * user defined reviver function described in JSON.parse method as
-       * second paramter (for this purpose use postParse method below)
+       * user defined `reviver` function described in `JSON.parse` method as
+       * second paramter (for this purpose use `postParse` method below)
        * @param {SerializableO} ojo object for post parse handling
        *   ojo means transformation:
        * o->preStringify(o) ->
@@ -797,23 +780,23 @@ var unCycle=
         return ojo;
       },
       /**
-       * new format of handling reviver function - which is
+       * new format of handling `reviver` function - which is
        * second parameter of JSON.parse(ojo,unCycle.reviver)
-       * Important remark: unCycle.riviver is a reviver function
-       * using to restore circular refernces of output object,
+       * Important remark: unCycle.riviver is a `reviver` function
+       * being used to restore circular refernces of output object,
        * if they do existed when object had been stringifying, and handles
-       * parsed object as a whole. If there is neccessity to
-       * correct separate property of object parsed so like it's
+       * parsed object as a whole. If there is neccessity to additioanlly
+       * correct by some way separate properties of object parsed so like it's
        * presumed in description of JSON.parse(o,reviver) method
-       * user could write her own reviver function with the same context
+       * user could write her own `reviver` function with the same context
        * as in description.That function in it's turn will be the parameter
        * of method unCycle.filter calling during the workflow( see
        * codes ).
-       * Defifinitions and logic of handling user function <reviver>
+       * Defifinitions and logic of handling user function `reviver`
        * is determined in general in JSON.parse() documentation.
        */
       reviverWork: function (key, value) {
-        var uc = this;
+        var uc = unCycle; // unCycle instance
         var reviverSet;
         if (!key) {
           uc.postParse(value);
@@ -829,7 +812,7 @@ var unCycle=
           if (reviverSet) {
             if (uc.isOb(value) || uc.isAr(value)) {
               // return uc.filter(key,value,reviver);
-              return this.filter(key, value, reviver);
+              return uc.filter(key, value, reviver);
             } else {
               return reviver(key, value);
             }
@@ -869,6 +852,7 @@ var unCycle=
       },
       /** reviver method preserving uids properties of
        * subobjects of object handling
+       * it is not used in the actual code
        */
       reviverShowUids: function (key, value) {
         var uc = unCycle;
@@ -932,25 +916,26 @@ var unCycle=
       /**
        * regarding setting parameters: showUids, uidsUndefined, noDelete
        *
-       * showUids - determines to show or not uid property of subobjects
-       *    uid property is used in calculation and clarifies undestending
+       * showUids - determines to show or not `uid` property of subobjects.
+       *    `uid` property is used in calculation and clarifies understanding
        *    of details. But it's inserted by program and is not initial
        *    outlay so user could not see it in output. default is false.
        *    to set true use code - uncycle.uiDirect.showUids = true;
        * uidsUndefined - this parameter is connected to showUids and 
-       *    set possibility not to delete uids of subobject by delete o[uid]
+       *    set the option not to delete uids of subobject by delete o[uid]
        *    when showUid === false but set them undefined to save processing
        *    time
        * noDelete - this switch permits or not to delete some object's 
        *    properties or set them undefined to save processing time.
        *    noDelete works evrywhere excluding direct use of method noUids.*/
       /**
-       * Deletes <uid> property from objects being members of ud.vals elements
-       * ud.vals is array each element of who is a value of some key in
-       * analysing object o for which object ud has been calculated
-       * @param {Object} ud is unCycle.uiDirect object calclulated
-       *     for analysing object omentioned above
-       * Important: changes in ud.vals[iv] pass to o object properties values!
+       * Deletes property named 'uid' from objects being elements of ud.vals 
+       * array each element of who is a value of some property in
+       * analysing object `o` for which the object `ud` has been calculated
+       * @param {UidsDirectory} ud is unCycle.uiDirect object calclulated
+       *     for analysing object o mentioned above
+       * Important: changes in ud.vals[iv] pass to `o` object properties
+       *  values by reference.
        */
       noUids: function (ud) {
         for (var iv = 0; iv < ud.vals.length; iv++) {
@@ -960,7 +945,9 @@ var unCycle=
         }
       },
       /**
-       * instead of delete uid property (like noUids does) it's set to undefined
+       * Resets uiDirect.uids array
+       * instead of deleting uid property (like noUids does) it's set to undefined
+       * @param {UidsDirectory} ud
        */
       undefineUids: function (ud) {
         for (var iv = 0; iv < ud.vals.length; iv++) {
@@ -979,28 +966,37 @@ var unCycle=
        */
       description: "./readme",
       /**
-       * creates kvn 2d-array keyValueNewValues [[keyi,value,newValuei]]
+       * @typedef {Array<Array<Oid,Uid,Val>>} KeyValueNewValues
+       *   kvn  -
+       *   2d-array [[key,value,newValue]] formed in unCycle.filter method
+       *   each row of wich is an array of [key,value,newValue]
+       *   where key and value are input parameter of standar JSON.parse
+       *   reviver( key,value ) function parameter and
+       *   newValue is the value set for appropriate (key,value) pair in reviver
+       *   function
+       * @type {KeyValueNewValues} */
+      kvn: [],
+      /**
+       * creates `kvn` 2d-array keyValueNewValues [[keyi,value,newValuei]]
        * determinig changes to perform with parsed object's  properties
-       * who are itself or object or arrays.
-       * Filtring is applied inside JSON.parse call parsing json literal string
-       * as first parameter and unCycle.reviver function as a second one
-       * ( attention! unCycle.reviver and user reviver are different functions)
-       * @param {string} key parameter of reviver function of
-       *   JSON.parse(o,reviver)
-       * @param {*} value parameter of reviver function of JSON.parse(o,reviver)
-       * being property's value of name key of parsing object modifying after
-       * having been parsed
+       * each of whom is itself or an object or an array.
+       * Filtering is applied inside `JSON.parse` call parsing json literal
+       * string as first parameter and unCycle.reviver function as a second one
+       * ( attention! unCycle.reviver and user `reviver` are different functions)
+       * @param {string} key 1st parameter of `reviver` function of
+       *     JSON.parse(o,reviver)
+       * @param {*} value 2nd parameter of `reviver` function of 
+       *     JSON.parse(o,reviver) being property's value of name key of
+       * parsing object being modified after having been parsed
        * @param {function(key,value)} reviver - user function returning object
-       *   described in JSON object docs.
-       *
+       *     described in JSON object docs.
+       *     ( unCycle.reviver and user's `reviver` are different functions)
        * @return {} always return value from input (key,value) paramters;
        */
       filter: function (key, value, reviver) {
-        // -- console.log('inside filter. key= %s, value= %s',key,value);
         var filt;
         if (this.isOb(value) || this.isAr(value)) {
           filt = reviver(key, value);
-          // -- console.log(filt);
           if (value !== filt) {
             this.kvn.push([key, value, filt]);
           } else if (value === undefined && filt === undefined) {
@@ -1012,44 +1008,50 @@ var unCycle=
       /**
        * modifies final values of parsed object properties accumulating by
        * <filter> method on the basis of user <reviver> function
-       * @param {Object} ojo object parsed but demanding modification
-       *   taking into account reviver function corrections
-       * @param {Array.<Array>} kvn - keysValsNewVs 2d-array, each row of which
-       *   is an array of [key,value,newValue]
+       * @param {SerializableO} ojo object parsed but demanding modification
+       *   taking into account `reviver` function corrections
+       * @param {KeyValueNewValues} kvn - keysValsNewVs 2d-array, each row of which
+       *   is an array [key,value,newValue]
        *   where key and value are input parameters of standard JSON.parse()
-       *   reviver{function(key,value)} function parameter and
-       *   newValue - is the value setting for appropriate key in reviver
+       *   reviver{function(key,value)} function-parameter and
+       *   newValue - is the value setting for appropriate key in `reviver`
        *   ojo is object already parsed
        *   Each property (key,value)  is parsed on the one by one basis.
        *
-       * This means that before last step (last parse cycle iteration
-       * over all properties and subproperties at which
-       * key = '' and value === ojo containing properties already parsed)
-       * all primitive type property presumed to be changed, set or deleted
-       *
-       * What is to be done before last iteration is to modify uiDirect object
-       * in accordance with unCycle.kvn array  unCycle. uiDirect.
+       * This means that all primitive type properties
+       * presumed to be changed, set or deleted before the Last Step. 
+       * Last Step - last parse cycle iteration over all properties and
+       * subproperties at which `key = '' and value === ojo`,
+       * where ojo - object containing properties already parsed.
+       * 
+       * What is to be done before the last iteration is to modify uiDirect
+       * object in accordance with unCycle.kvn array  unCycle.uiDirect.
        * !!Important: kvn array should be reset by unCycle.kvnO.resetkvn()
        *
-       * circularize replaces patches( patch is ojo[somePropName]=someUid ) by
-       * values through assigning ojo[somePropName]=uc.uiDiredt[someUid].
+       * `circularize` methos replaces patches (a patch is 
+       * `ojo[somePropName]=someUid` ) by
+       * values through assigning `ojo[somePropName]=uc.uiDiredt[someUid]`.
        *
-       * it's possible that ojo has few properties whose value are =someUid
+       * it's possible that `ojo` has few properties whose value are =someUid
        * Among them those who are prescripted to be deleted by kvn should be
        * deleted (or setting to undefined (?) if any)
        * ( condition for that:
+       * ```
        *   kvn[0]===somePropName
        *   kvn[1]===someUid
        *   kvn[2]===undefined
-       * )
-       * ,
-       * another ones should have set their values to undefined
-       * Further ud is uiDirect for shortness.
-       * For that properties ud[somUid1]===someUid and should be set
-       * to ud[someUid1]=undefined
+       * ```
+       * ),
+       * another ones should have their values to be set to undefined
+       * Further `ud` is `uiDirect` for shortness.
+       * For that properties `ud[somUid1] === someUid` and should be set
+       * to `ud[someUid1] = undefined`
        * Taking into account the feature that
-       * ud[someUid1]===ojo[someKey1Parent][someKey1].value While ud[someUid1]
-       * is changing it's changed ojo[someKey1Parent][someKey1];
+       * ```
+       * ud[someUid1]===ojo[someKey1Parent][someKey1].value 
+       * ```
+       * While `ud[someUid1]` is changing it's changed 
+       * `ojo[someKey1Parent][someKey1];` as well.
        * Therefore the all we need to do is to change ud[someUid1] value
        *
        * if ojo[somePropName] should be deleted on the bases of ud.kvn values
@@ -1060,13 +1062,11 @@ var unCycle=
           // -- console.log('there is nothing to change no kvn');
           return;
         }
-        // -- console.log('kvn has elements length= '+kvn.length);
         // kvn has elements
         for (var i = 0; i < kvn.length; i++) {
           if (kvn[i][1] === kvn[i][2]) {
             continue; // keeps unchanged
           } else {
-            // -- console.log('inside changeOjoVals before modifyObjs');
             this.modifyObjs(ojo, kvn, i);
           }
         }
@@ -1076,17 +1076,17 @@ var unCycle=
       },
       /**
        * modifies object parsed before circularize it
-       * incerts changes before last iteration over standard reviver
-       * function JSON.parse(ojo,reviver) procedure
+       * incerts changes before last iteration over standard `reviver`
+       * function `JSON.parse(ojo,reviver)` procedure
        * @param {Object} ojo object in parsing procedure which is
        *   modified by reviver function.
        * @param {Array} kvn - 2d-array [[key,value,newValue]] formed in
-       *   unCycle.filter method
-       * @param {number} ir index of kvn row should be taking to modify ojo
-       // Ð—Ð°Ð¼ÐµÑ‡Ð°Ð½Ð¸Ðµ. ÐŸÑ€Ð¾Ñ†ÐµÐ´ÑƒÑ€Ð° ÑƒÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÑ‚ Ð½Ðµ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ÑÑ‚ÑŒ
-       // ÑƒÐ½Ð¸ÐºÐ°Ð»ÑŒÐ½Ð¾Ð³Ð¾ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð°, Ð½Ð¾ Ð¸ ÑÐ¸Ñ‚ÑƒÐ°Ñ†Ð¸ÑŽ, ÐºÐ¾Ð³Ð´Ð°
-       // Ð½ÐµÑÐºÐ¾Ð»ÑŒÐºÐ¾ Ð¿Ð¾Ð´Ð¾Ð±ÑŠÐµÐºÑ‚Ð¾Ð² Ð¸Ð¼ÐµÑŽÑ‚ Ð¾Ð´Ð¸Ð½Ð°ÐºÐ¾Ð²Ñ‹Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ.
-       // Ð”Ð»Ñ ÑÑ‚Ð¾Ð³Ð¾ Ð¾Ñ€Ð³Ð°Ð½Ð¸Ð·Ð¾Ð²Ð°Ð½ Ñ†Ð¸ÐºÐ» while
+       *   `unCycle.filter` method
+       * @param {number} ir index of kvn row should be taken to modify ojo
+       // Замечание. Процедура учитывает не только возможность
+       // уникального значения свойства, но и ситуацию, когда
+       // несколько подобъектов имеют одинаковые значения.
+       // Для этого организован цикл while
        * Procedure eleborates not only unique property whose value satisfies
        * selection criterion but multiple cases as well. e.g. when
        * there are few properties which value are equal to uid and therefore
@@ -1098,7 +1098,7 @@ var unCycle=
         var jVal, uid;
         while (this.uiDirect.vals.indexOf(kvn[ir][1], start) >= 0) {
           // set index of value in unCycle.uiDirect.vals array,
-          // the same indices have oid and uid in .oids .uids - arrays
+          // the same indices have `oid` and `uid` in `.oids .uids` - arrays
           jVal = this.uiDirect.vals.indexOf(kvn[ir][1], start);
           start = jVal + 1;
           uid = this.uiDirect.uids[jVal];
@@ -1125,7 +1125,7 @@ var unCycle=
               // -- console.log('Error inside try:'+e );
             }*/
             if (cutUiDirect) {
-              // !!?? Ð½Ð°Ð´Ð¾ Ð»Ð¸ ÑƒÐ´Ð°Ð»ÑÑ‚ÑŒ ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ðµ ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð° Ð¸ Ð¼Ð°ÑÑÐ¸Ð²Ñ‹ Ð² uiDirect??!!
+              // !!?? надо ли удалять соответствующие свойства и массивы в uiDirect??!!
               this.uiDirect.vals.splice(jVal, 1);
               this.uiDirect.uids.splice(jVal, 1);
               this.uiDirect.oids.splice(jVal, 1);
@@ -1136,7 +1136,8 @@ var unCycle=
               }
             }
           } else {
-            // this.uiDirect[uid]=kvn[ir][2]; // assigns new Value for appropriate property of ojo object
+            // this.uiDirect[uid]=kvn[ir][2];
+            // assigns new Value for appropriate property of ojo object
             // assign newValue
             if (this.isOb(this.uiDirect[uid]) && this.isOb(kvn[ir][2])) {
               // bouth are object
@@ -1165,12 +1166,12 @@ var unCycle=
         }
       },
       /**
-       * Ð¿Ñ€Ð¾Ñ†ÐµÐ´ÑƒÑ€a uidValRepl( ojo,uidAsVal,newVal,ud)
-       * Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÑ‚, Ð½Ðµ Ð¾ÑÑ‚Ð°Ð»Ð¾ÑÑŒ Ð»Ð¸  Ð² ojo ÑÑ€ÐµÐ´Ð¸ ÑÐ²Ð¾Ð¹ÑÑ‚Ð² Ñ‚Ð¸Ð¿Ð° object
-       * Ð¸  array ÐºÐ°ÐºÐ¸Ñ…-Ð»Ð¸Ð±Ð¾ ÑÐ²Ð¾Ð¹ÑÑ‚Ð² Ð¸Ð»Ð¸ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð¾Ð² Ð¼Ð°ÑÑÐ¸Ð²Ð¾Ð², Ñ‡ÑŒÐ¸Ð¼ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸ÑÐ¼
-       * Ð¿Ñ€Ð¸ÑÐ²Ð¾ÐµÐ½Ñ‹ ÑÑ‚Ñ€Ð¾ÐºÐ¾Ð²Ð¾Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ  uidAsVal (ÑÐ¿Ð¾ÑÐ¾Ð± ÐºÐ¾Ð´Ð¸Ñ€Ð¾Ð²ÐºÐ¸ ÑÑÑ‹Ð»ÐºÐ¸
-       * Ð½Ð° ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚ Ñ Ð´Ð°Ð½Ð½Ñ‹Ð¼ uid), Ñ€Ð°Ð²Ð½Ð¾Ðµ uid-Ñƒ, Ð»Ð¸Ð±Ð¾ ÑƒÐ´Ð°Ð»ÑÐµÐ¼Ð¾Ð³Ð¾, Ð»Ð¸Ð±Ð¾ Ð¸Ð·Ð¼ÐµÐ½ÑÐµÐ¼Ð¾Ð³Ð¾
-       *  ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð°. (Ð°Ð»Ð³Ð¾Ñ€Ð¸Ñ‚Ð¼ Ð¿Ð¾Ð¸ÑÐºÐ°: Ð² ojo Ð¸Ñ‰ÐµÐ¼ ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð° Ð¸ Ð¿Ð¾Ð´ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð° === uid )
+       * процедурa uidValRepl( ojo,uidAsVal,newVal,ud)
+       * проверяет, не осталось ли  в ojo среди свойств типа object
+       * и  array каких-либо свойств или элементов массивов, чьим значениям
+       * присвоены строковое значение  uidAsVal (способ кодировки ссылки
+       * на элемент с данным uid), равное uid-у, либо удаляемого, либо изменяемого
+       *  свойства. (алгоритм поиска: в ojo ищем свойства и подсвойства === uid )
        * 1.gets uid specified - uidAsVal
        * 2. going from the end to the beginning(from the last to the first)
        * by array unCycle.uiDirect.vals which is the array of values of
@@ -1183,19 +1184,22 @@ var unCycle=
        * or 'newValue' or 'delete'. Such exchange is not doing when the
        * property name  is 'uid'.
        *   newValue===kvn[2]
-       * ÐŸÐ¾ÑÐ»Ðµ Ñ‚Ð¾Ð³Ð¾, ÐºÐ°Ðº Ñ‚Ð°ÐºÐ¾Ðµ Ð¿Ñ€Ð¸ÑÐ²Ð¾ÐµÐ½Ð¸Ðµ (Ð»Ð¸Ð±Ð¾ undefined, Ð»Ð¸Ð±Ð¾ newValue) Ð±ÑƒÐ´ÐµÑ‚
-       * ÑÐ´ÐµÐ»Ð°Ð½Ð¾, Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð½Ñ‹Ðµ Ñ‚Ð°ÐºÐ¸Ð¼ Ð¾Ð±Ñ€Ð°Ð·Ð¾Ð¼ Ð¿Ð¾Ð´Ð¾Ð±ÑŠÐµÐºÑ‚Ñ‹ Ð¸Ð»Ð¸ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ñ‹ (Ð¿Ð¾Ð´)Ð¼Ð°ÑÑÐ¸Ð²Ð¾Ð²
-       * Ð½Ðµ Ð¿Ð¾Ð¿Ð°Ð´ÑƒÑ‚ Ð¿Ð¾Ð´ Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ circularize.
-       * !!! ÑÑ‚Ð¸ Ð¿Ñ€Ð¸ÑÐ²Ð¾ÐµÐ½Ð¸Ñ Ð´Ð¾Ð»Ð¶Ð½Ñ‹ Ð±Ñ‹Ñ‚ÑŒ ÑÐ´ÐµÐ»Ð°Ð½Ñ‹ Ð´Ð¾ Ñ„Ð¸Ð·Ð¸Ñ‡ÐµÑÐºÐ¾Ð³Ð¾ ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ñ
-       * ÑÐ²Ð¾Ð¹ÑÑ‚Ð² Ð¾Ð±ÑŠÐµÐºÑ‚Ð°( ÐµÑÐ»Ð¸ Ð¸Ñ… Ð¿Ð¾Ð·Ð²Ð¾Ð»ÑÑŽÑ‚ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ¸ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ñ‡Ð¸ÐºÐ°)
+       * 
+       * После того, как такое присвоение (либо undefined, либо newValue) будет
+       * сделано, измененные таким образом подобъекты или элементы (под)массивов
+       * не попадут под действие circularize.
+       * !!! эти присвоения должны быть сделаны до физического удаления
+       * свойств объекта( если их позволяют установки обработчика)
+       * 
        * searches if some properties had been assigned to uidAsVal string value
        *  and reassigns them to newVal
        *
        * @param {Object} ojo Object parsed form json string (preliminary serialized)
-       * @param {string} uidAsVal - uid name whose string value is searched as
+       * @param {Uid} uidAsVal - uid name whose string value is searched as
        *     a value of some property or element
-       * @param {}newVal New value or undefined
-       * @param {Object} ud unCycle.uiDirect object of unCycle object
+       * @param {Val}newVal New value or undefined
+       * @param {UidsDirectory} ud unCycle.uiDirect object of unCycle object
+       * @return {void}
        */
       uidValRepl: function (ojo, uidAsVal, newVal, ud) {
         for (var iv = ud.vals.length - 1; iv >= 0; iv--) {
@@ -1203,16 +1207,6 @@ var unCycle=
         }
         //console.log(ojo);
       },
-      /**
-       * @type {Array.<[key,value,newValue]>} kvn  keyValueNewValues
-       *   2d-array [[key,value,newValue]] formed in unCycle.filter method
-       *   each row of wich is an array of [key,value,newValue]
-       *   where key and value are input parameter of standar JSON.parse
-       *   reviver( key,value ) function parameter and
-       *   newValue is the value set for appropriate (key,value) pair in reviver
-       *   function
-       */
-      kvn: [],
       /**
        * @type {!boolean=true} regStrOn
        *   Switches on/off regstr - module inclusion.
@@ -1313,13 +1307,12 @@ var unCycle=
  * reviver for primitive types properties of object parsed
  * return {undefined|value|newValue=} [value]
 
-
-!!! Ð’Ð°Ð¶Ð½Ð¾Ðµ Ð·Ð°Ð¼ÐµÑ‡Ð°Ð½Ð¸Ðµ !!! Ð¿Ñ€Ð¸ Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·Ð¾Ð²Ð°Ð½Ð¸Ð¸ Ð¸Ð· json Ð»Ð¸Ñ‚ÐµÑ€Ð°Ð»Ð° --> JSON.pars(json)
-Ð»ÑƒÑ‡ÑˆÐµ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÑŒ Ð²Ð°Ñ€Ð¸Ð°Ð½Ñ‚ json Ñ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð½Ñ‹Ð¼Ð¸ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸ÑÐ¼Ð¸ ÑÐ²Ð¾Ð¹ÑÑ‚Ð² uid
-ÑÑ‚Ð¾ Ð´Ð°ÐµÑ‚ Ð´Ð¾Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ðµ Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ÑÑ‚Ð¸ Ð¿Ñ€Ð¸ Ñ€Ð°Ð±Ð¾Ñ‚Ðµ Ñ Ñ„ÑƒÐ½ÐºÑ†Ð¸ÐµÐ¹ reviver, Ñ‚Ð°Ðº ÐºÐ°Ðº
-Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ uid  ÑƒÐ½Ð¸ÐºÐ°Ð»ÑŒÐ½Ð¾ Ð¸ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð½Ð¾ Ð²Ð½ÑƒÑ‚Ñ€Ð¸ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸ reviver(key,value) ÐºÐ°Ðº
-ÑÐ²Ð¾Ð¹ÑÑ‚Ð²Ð¾ value.uid, Ñ‚.Ðµ. Ð¿Ð¾Ð·Ð²Ð¾Ð»ÑÐµÑ‚ Ð¾Ð´Ð½Ð¾Ð·Ð½Ð°Ñ‡Ð½Ð¾ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚ Ð¿Ñ€Ð¸
-Ð¿ÐµÑ€ÐµÐ±Ð¾Ñ€Ðµ Ñ†Ð¸ÐºÐ»Ð° parse Ð¸Ð½Ð´Ð¸Ð²Ð¸Ð´ÑƒÐ°Ð»ÑŒÐ½Ñ‹Ñ… ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ð¾Ð².
+!!! Важное замечание !!! при преобразовании из json литерала --> JSON.pars(json)
+лучше использовать вариант json с сохраненными значениями свойств uid
+это дает дополнительные возможности при работе с функцией reviver, так как
+значение uid  уникально и доступно внутри функции reviver(key,value) как
+свойство value.uid, т.е. позволяет однозначно идентифицировать элемент при
+переборе цикла parse индивидуальных элементов.
  */
 /**
  * A sample of user reviver function is used for testing object handling !!
@@ -1365,7 +1358,7 @@ var ojoTest = (function () {
     }, '##prim'],
     c: {
       o: {},
-      o1: [0, [Array], 2],
+      o1: [0, [1,"##c"], 2],
       o3: 'o3',
       im: 'obj'
     },
