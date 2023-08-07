@@ -431,7 +431,7 @@ var unCycle=
           uid = h.uiDirect.uids[iu];
           oRef = this.refer(uid, ojo);
           for (var iv = 0; iv < h.uiDirect.vals.length; iv++) {
-            this.refDarner(uid, oRef, ojo, h.uiDirect.vals, iv);
+            this.refDarnerNew(uid, oRef, ojo, h.uiDirect.vals, iv);
           }
         }
         return ojo;
@@ -1007,7 +1007,7 @@ var unCycle=
        */
       uidValRepl: function (ojo, uidAsVal, newVal, ud) {
         for (var iv = ud.vals.length - 1; iv >= 0; iv--) {
-          this.refDarner(uidAsVal, newVal, ojo, ud.vals, iv);
+          this.refDarnerNew(uidAsVal, newVal, ojo, ud.vals, iv);
         }
         //console.log(ojo);
       },
@@ -1022,6 +1022,73 @@ var unCycle=
        *   regStrOn  property should be set true for this.
        */
       regStrOn: true,
+      rDA: function(uid, oRef, ojo, vals, ...opt){
+        let [iv,ip] = opt;
+        let [valRef,vls,ix] = (opt.length === 1) ?
+        [vals[iv], vals, iv] : [vals[iv][ip], vals[iv], ip];      
+        if (this.isAr(valRef)) {
+          // val is array
+          for (i = 0; i < valRef.length; i++) {
+            if (!this.isAr(valRef[i]) || !this.isOb(valRef[i])) {
+              if (valRef[i] === uid) {
+                vls[ix][i] = oRef; 
+              }
+            } else {
+              this.rDAO(uid, oRef, ojo, vls, ix, i);
+            }
+          }
+        }
+      },
+      rDO: function(uid,oRef,ojo,vals,...opt){
+        let [iv,ip] = opt;
+        let [valRef, vls, ix] = (opt.length === 1) ?
+        [vals[iv], vals, iv] : [vals[iv][ip], vals[iv], ip];
+        if (this.isOb(valRef)) {
+          // val is object
+          for (var i in valRef) {
+            if (!this.isAr(valRef[i]) || !this.isOb(valRef[i])) {
+              if (valRef[i] === uid && i !== 'uid') {
+                vls[ix][i] = oRef;
+              }
+              if (i === 'uid' && !this.uiDirect.showUids) {
+                // -- no uids
+                if (this.uiDirect.uidsUndefined === true ||
+                  this.uiDirect.noDelete === true) {
+                    valRef[i] = undefined;
+                  } else {
+                    delete valRef[i];
+                  }
+                }
+              } else {
+                this.rDAO(uid, oRef, ojo, vls, ix, i);
+              }
+            }
+          }
+        },
+        rDAO: function(uid,oRef,ojo,vals,...opt){
+          let subRef = vals[opt[0]];
+          if (this.isAr(subRef)) {
+            if( opt.length === 1){
+              this.rDA(uid,oRef,ojo,vals,opt[0]);} else {
+              this.rDA(uid,oRef,ojo,vals,opt[0],opt[1]);
+            }
+          } else if (this.isOb(subRef)) {
+            if( opt.length === 1){
+                this.rDO(uid,oRef,ojo,vals,opt[0]);}else{
+                this.rDO(uid,oRef,ojo,vals,opt[0],opt[1]);
+            }   
+          }
+        },
+        refDarnerNew: function (uid, oRef, ojo, vals, ...opt) { 
+          let [iv,ip] = opt;
+          if (iv === undefined) { throw 'iv should be set obligatorily';}        
+          if (ip === undefined) {
+            this.rDAO(uid,oRef,ojo,vals,opt[0]);
+          } else {
+            this.rDAO(uid,oRef,ojo,vals,opt[0],opt[1])
+          }
+        },
+        
     };
   }());
 
