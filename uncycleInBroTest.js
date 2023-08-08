@@ -54,7 +54,7 @@ var testUncycle = function () {
   console.log(
     '\n\nPay attention to \'Circular\' mark indicating presence of circular references\n');
   unCycle.uiDirect.resetData();
-  unCycle.uidsVsVals(o);
+  unCycle.fillDirectory(o);
   console.log(
     '\nThe handler method\n\n' +
     '            unCycle.preStringify(o);\n\n' +

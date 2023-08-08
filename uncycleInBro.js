@@ -230,49 +230,6 @@ var unCycle=
 
         oUid = this.addTrio(o, pUid, oId, pO);
 
-        if (!pO || oId === undefined) {
-          if (this.isOb(o)) {
-            for (ip in o) {
-              if (this.isOb(o[ip]) || this.isAr(o[ip])) {
-                this.fillDirectory(o[ip], o.uid, ip, o);
-              }
-            }
-          } else if (this.isAr(o)) {
-            for (ia = 0; ia < o.length; ia++) {
-              if (this.isOb(o[ia]) || this.isAr(o[ia])) {
-                this.fillDirectory(o[ia], oUid, ia, o);
-              }
-            }
-          }
-        } else if (pO && (oId || oId === 0)) {
-          if (this.isOb(pO[oId])) {
-            for (ip in pO[oId]) {
-              if (this.isOb(pO[oId][ip]) || this.isAr(pO[oId][ip])) {
-                this.fillDirectory(pO[oId][ip], pO[oId].uid, ip, pO[oId]);
-              }
-            }
-          } else if (this.isAr(pO[oId])) {
-            for (ia = 0; ia < pO[oId].length; ia++) {
-              if (this.isOb(pO[oId][ia]) || this.isAr(pO[oId][ia])) {
-                this.fillDirectory(pO[oId][ia], oUid, ia, pO[oId]);
-              }
-            }
-          }
-        }
-      },
-      fillDirect: function (o, opt_pUid, opt_oId, pO) {
-        var pUid, oId, oUid, ip, ia;
-        
-        pUid = (opt_pUid || opt_pUid === 0) ? opt_pUid : 
-            ((pO && pO.im)? pO.im :
-             ((pO && pO.id)? pO.id :
-              ((o.rim)? o.rim : '')));
-
-        oId = (opt_oId || opt_oId === 0) ? opt_oId : 
-            ((o.id)? o.id : ((o.im)? o.im : ''));
-
-        oUid = this.addTrio(o, pUid, oId, pO);
-
         var oT = (!pO || oId === undefined)? o : pO[oId];
 
         this.fDO(oT);
@@ -282,7 +239,7 @@ var unCycle=
         if (this.isOb(o)) {
           for (ip in o) {
             if (this.isOb(o[ip]) || this.isAr(o[ip])) {
-              this.fillDirect(o[ip], o.uid, ip, o);
+              this.fillDirectory(o[ip], o.uid, ip, o);
             }
           }
         }
@@ -291,7 +248,7 @@ var unCycle=
         if (this.isAr(o)) {
           for (ia = 0; ia < o.length; ia++) {
             if (this.isOb(o[ia]) || this.isAr(o[ia])) {
-              this.fillDirect(o[ia], oUid, ia, o);
+              this.fillDirectory(o[ia], oUid, ia, o);
             }
           }
         }
@@ -308,7 +265,7 @@ var unCycle=
        * and the uil value is index of the element
        *  !!important equation!!:
        *  unCycle.uiDirect[uid]===unCycle.refer(uid,ojo) if
-       *  unCycle.uiDirect has been got after unCycle.fillDirectory(ojo)
+       *  unCycle.uiDirect has been got after unCycle.fillDirectoryory(ojo)
        *  This means that if uncycle.refer(uid,ojo)===undefined then nested
        *  property does not exist or connection between uiDirect and input
        *  object has been destroied
@@ -482,7 +439,7 @@ var unCycle=
       preStringify: function (o) {
 
         this.uiDirect.resetData();
-        this.fillDirect(o);
+        this.fillDirectory(o);
         if (!this.uiDirect.showUids) {
           if (this.uiDirect.uidsUndefined) {
             this.undefineUids(this.uiDirect);
@@ -595,7 +552,7 @@ var unCycle=
       */
      afterParse: function (ojo) {
        this.uiDirect.resetData();
-       this.fillDirect(ojo);
+       this.fillDirectory(ojo);
        this.circularize(ojo, this);
        return ojo;
       },
@@ -614,7 +571,7 @@ var unCycle=
       postParse: function (ojo) {
         // -- console.log('postParse begins');
         this.uiDirect.resetData();
-        this.fillDirect(ojo);
+        this.fillDirectory(ojo);
         this.changeOjoVals(ojo, this.kvn);
         this.circularize(ojo, this);
         return ojo;
