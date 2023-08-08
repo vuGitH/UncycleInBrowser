@@ -482,7 +482,7 @@ var unCycle=
       preStringify: function (o) {
 
         this.uiDirect.resetData();
-        this.fillDirectory(o);
+        this.fillDirect(o);
         if (!this.uiDirect.showUids) {
           if (this.uiDirect.uidsUndefined) {
             this.undefineUids(this.uiDirect);
@@ -595,7 +595,7 @@ var unCycle=
       */
      afterParse: function (ojo) {
        this.uiDirect.resetData();
-       this.fillDirectory(ojo);
+       this.fillDirect(ojo);
        this.circularize(ojo, this);
        return ojo;
       },
@@ -614,7 +614,7 @@ var unCycle=
       postParse: function (ojo) {
         // -- console.log('postParse begins');
         this.uiDirect.resetData();
-        this.fillDirectory(ojo);
+        this.fillDirect(ojo);
         this.changeOjoVals(ojo, this.kvn);
         this.circularize(ojo, this);
         return ojo;
