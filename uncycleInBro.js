@@ -190,6 +190,7 @@ var unCycle=
         return oUid;
       },
       /**
+       * (previouse method name: uidsVsVals)
        * Calculates and assigns universal identifiers (uids) to
        * objects and arrays' elements being values of properties and 
        * subproperties of analysing object( or elements of analysing arrays).
@@ -216,7 +217,7 @@ var unCycle=
        *     property name)
        * @return {void} using addTrio method
        */
-      uidsVsVals: function (o, opt_pUid, opt_oId, pO) {
+      fillDirectory: function (o, opt_pUid, opt_oId, pO) {
         var pUid, oId, oUid, ip, ia;
         
         pUid = (opt_pUid || opt_pUid === 0) ? opt_pUid : 
@@ -233,13 +234,13 @@ var unCycle=
           if (this.isOb(o)) {
             for (ip in o) {
               if (this.isOb(o[ip]) || this.isAr(o[ip])) {
-                this.uidsVsVals(o[ip], o.uid, ip, o);
+                this.fillDirectory(o[ip], o.uid, ip, o);
               }
             }
           } else if (this.isAr(o)) {
             for (ia = 0; ia < o.length; ia++) {
               if (this.isOb(o[ia]) || this.isAr(o[ia])) {
-                this.uidsVsVals(o[ia], oUid, ia, o);
+                this.fillDirectory(o[ia], oUid, ia, o);
               }
             }
           }
@@ -247,13 +248,13 @@ var unCycle=
           if (this.isOb(pO[oId])) {
             for (ip in pO[oId]) {
               if (this.isOb(pO[oId][ip]) || this.isAr(pO[oId][ip])) {
-                this.uidsVsVals(pO[oId][ip], pO[oId].uid, ip, pO[oId]);
+                this.fillDirectory(pO[oId][ip], pO[oId].uid, ip, pO[oId]);
               }
             }
           } else if (this.isAr(pO[oId])) {
             for (ia = 0; ia < pO[oId].length; ia++) {
               if (this.isOb(pO[oId][ia]) || this.isAr(pO[oId][ia])) {
-                this.uidsVsVals(pO[oId][ia], oUid, ia, pO[oId]);
+                this.fillDirectory(pO[oId][ia], oUid, ia, pO[oId]);
               }
             }
           }
@@ -261,25 +262,25 @@ var unCycle=
       },
       
       /**
-       * Returns the references (value's addresses)
-       * of the subproperty or the element on appropriate level "depth"
+       * Returns the references (value's address)
+       * of the subproperty or the element at appropriate "depth" level 
        * assosiating with uid specified.
-       * Reconstructs deep structure of object's ojo subobject on the bases
+       * Reconstructs deep structure of input object's subobject on the bases
        * of uid and uils values.
        * If first character of uil is a 'letter'(/^([a-z]|[A-Z])/) - 
-       * subproperty value is object and
-       * letters content is property's name of this subproperty
-       * If first character of uil is a 'digit' - array,
-       * and the value of digit is index of element
+       * subproperty value is object and uil is property name of this subproperty
+       * If first character of uil is a 'digit' - the subproperty is an array,
+       * and the uil value is index of the element
+       *  !!important equation!!:
+       *  unCycle.uiDirect[uid]===unCycle.refer(uid,ojo) if
+       *  unCycle.uiDirect has been got after unCycle.fillDirectory(ojo)
+       *  This means that if uncycle.refer(uid,ojo)===undefined then nested
+       *  property does not exist or connection between uiDirect and input
+       *  object has been destroied
        * @param {Uid} uid string of uid value
        * @param {SerializableO} ojo - object of modification. Could be the result of
        *   reverse json conversion o->oj->ojo o -> json.stringify -> json.parse
-       * @return {Val} object value reference       *
-       *  !!important equation!!:
-       *  unCycle.uiDirect[uid]===unCycle.refer(uid,ojo) if
-       *  unCycle.uiDirect has been got after unCycle.uidsVsVals(ojo)
-       *  This means that if uc.refer(uid,ojo)===undefined than nested property
-       *  does not exist or connection between uiDirect and ojo has been destroied
+       * @return {Val} uid's entity value reference(address)
        */
       refer: function (uid, ojo) {
         var uils = uid.split('#').slice(1); // uids for levels
@@ -446,7 +447,7 @@ var unCycle=
       preStringify: function (o) {
 
         this.uiDirect.resetData();
-        this.uidsVsVals(o);
+        this.fillDirectory(o);
         if (!this.uiDirect.showUids) {
           if (this.uiDirect.uidsUndefined) {
             this.undefineUids(this.uiDirect);
@@ -559,7 +560,7 @@ var unCycle=
       */
      afterParse: function (ojo) {
        this.uiDirect.resetData();
-       this.uidsVsVals(ojo);
+       this.fillDirectory(ojo);
        this.circularize(ojo, this);
        return ojo;
       },
@@ -578,7 +579,7 @@ var unCycle=
       postParse: function (ojo) {
         // -- console.log('postParse begins');
         this.uiDirect.resetData();
-        this.uidsVsVals(ojo);
+        this.fillDirectory(ojo);
         this.changeOjoVals(ojo, this.kvn);
         this.circularize(ojo, this);
         return ojo;
