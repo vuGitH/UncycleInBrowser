@@ -334,60 +334,60 @@ var unCycle=
         let [valRef, vls, ix] = (opt.length === 1) ?
         [vals[iv], vals, iv] : [vals[iv][ip], vals[iv], ip];
         if (this.isOb(valRef)) {
-          // val is object
-          for (var i in valRef) {
-            if (!this.isAr(valRef[i]) || !this.isOb(valRef[i])) {
-              if (valRef[i] === uid && i !== 'uid') {
-                vls[ix][i] = oRef;
-              }
-              if (i === 'uid' && !this.uiDirect.showUids) {
-                // -- no uids
-                if (this.uiDirect.uidsUndefined === true ||
-                  this.uiDirect.noDelete === true) {
-                    valRef[i] = undefined;
-                  } else {
-                    delete valRef[i];
-                  }
+        // val is object
+        for (var i in valRef) {
+          if (!this.isAr(valRef[i]) || !this.isOb(valRef[i])) {
+            if (valRef[i] === uid && i !== 'uid') {
+              vls[ix][i] = oRef;
+            }
+            if (i === 'uid' && !this.uiDirect.showUids) {
+              // -- no uids
+              if (this.uiDirect.uidsUndefined === true ||
+                this.uiDirect.noDelete === true) {
+                  valRef[i] = undefined;
+                } else {
+                  delete valRef[i];
                 }
-              } else {
-                this.rDAO(uid, oRef, ojo, vls, ix, i);
               }
+            } else {
+              this.rDAO(uid, oRef, ojo, vls, ix, i);
             }
           }
-        },
-        rDAO: function(uid,oRef,ojo,vals,...opt){
-          if( opt.length === 1){
-            this.rDA(uid,oRef,ojo,vals,opt[0]);
-            this.rDO(uid,oRef,ojo,vals,opt[0]);
-          } else {
-            this.rDA(uid,oRef,ojo,vals,opt[0],opt[1]);
-            this.rDO(uid,oRef,ojo,vals,opt[0],opt[1]);
-          }
-        },
-        /**
-         * browses through ojo object's properties and subproperties
-         * to replace patches by reference from array vals
-         * ( unCycle.uiDirect.vals) if any
-         * @param {Uid} uid uid value
-         * @param {Reference| Val} oRef - structural reference to the memory
-         *     location of entity specified by uid. Obtained recursively
-         *     reproducting internal hierarchical structure of object 
-         *     indicated in object property literal link. That reference 
-         *     is used to assign or to get value for substitution of string
-         *     "patch"
-         * @param {SerializableO} ojo object in proccessing
-         * @param {Vals } vals array of substitution
-         *     objects. Here the whole array is used as a parameter but not the
-         *     element approptiate to uid in
-         *     <uids> vs <vals> pairs.  val appropriating to uid is val=vals[iv]
-         *     Such form permits passing any changes of elements outside
-         *     of method function. Change of vals provides of appropriate change
-         *     of ojo object
-         * @param {number} iv actual index of vals element 
-         *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
-         * @param {number} ip subproperty index 
-         * @return{void}
-        */
+        }
+      },
+      rDAO: function(uid,oRef,ojo,vals,...opt){
+        if( opt.length === 1){
+          this.rDA(uid,oRef,ojo,vals,opt[0]);
+          this.rDO(uid,oRef,ojo,vals,opt[0]);
+        } else {
+          this.rDA(uid,oRef,ojo,vals,opt[0],opt[1]);
+          this.rDO(uid,oRef,ojo,vals,opt[0],opt[1]);
+        }
+      },
+      /**
+       * browses through ojo object's properties and subproperties
+       * to replace patches by reference from array vals
+       * ( unCycle.uiDirect.vals) if any
+       * @param {Uid} uid uid value
+       * @param {Reference| Val} oRef - structural reference to the memory
+       *     location of entity specified by uid. Obtained recursively
+       *     reproducting internal hierarchical structure of object 
+       *     indicated in object property literal link. That reference 
+       *     is used to assign or to get value for substitution of string
+       *     "patch"
+       * @param {SerializableO} ojo object in proccessing
+       * @param {Vals } vals array of substitution
+       *     objects. Here the whole array is used as a parameter but not the
+       *     element approptiate to uid in
+       *     <uids> vs <vals> pairs.  val appropriating to uid is val=vals[iv]
+       *     Such form permits passing any changes of elements outside
+       *     of method function. Change of vals provides of appropriate change
+       *     of ojo object
+       * @param {number} iv actual index of vals element 
+       *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
+       * @param {number} ip subproperty index 
+       * @return{void}
+       */
       refDarner: function (uid, oRef, ojo, vals, ...opt) { 
         let [iv,ip] = opt;
         if (iv === undefined) { throw 'iv should be set obligatorily';}        
@@ -420,7 +420,6 @@ var unCycle=
         }
         return ojo;
       },
-
       /**
        * prepares object to stringify
        * @param {Hampered|SourceO} o - object containing circular reference
@@ -453,12 +452,12 @@ var unCycle=
        * @param {string} key 
        * @param {SerializableO} value 
        * @returns {*}
-      */
-     replacerPre: function (key, value) {
-       if (key === '' || key === undefined || !key && (key !== 0)) {
-         // unCycle.preStringify(value);
-         var uc = unCycle;
-         uc.preStringify(value);         
+       */
+      replacerPre: function (key, value) {
+        if (key === '' || key === undefined || !key && (key !== 0)) {
+          // unCycle.preStringify(value);
+          var uc = unCycle;
+          uc.preStringify(value);         
         }
         return value;
       },
@@ -473,11 +472,11 @@ var unCycle=
        * @param {string} key 
        * @param {SerializableO} value 
        * @returns {string}
-      */
-     replacer: function (key, value) {
-       var uc = unCycle;
-       var replacerSet;
-       if (key === '' || key === undefined || !key && (key !== 0)) {
+       */
+      replacer: function (key, value) {
+        var uc = unCycle;
+        var replacerSet;
+        if (key === '' || key === undefined || !key && (key !== 0)) {
          uc.preStringify(value);
         } else {
           try {
@@ -485,23 +484,23 @@ var unCycle=
               uc.replacerUser !== undefined &&
               typeof uc.replacerUser === 'function') ?
               true : false;
-            } catch (e) {
+          } catch (e) {
               if (/(\b\w+\b\s|\s)is not defined/.test(e)) {
                 replacerSet = false;
               } else {
                 throw (e);
               }
-            }
-            if (replacerSet) {
-              return uc.replacerUser(key, value); // user replacer function;
-            }
           }
-          return value;
-        },
-        /**
-         * extending variant of replacer function (inside JSON.stringify(o,replacer))
-         * to include typical  modification of json output string determined by
-         * user  replacer(key,value) function which has global scope here
+          if (replacerSet) {
+            return uc.replacerUser(key, value); // user replacer function;
+          }
+        }
+        return value;
+      },
+      /**
+       * extending variant of replacer function (inside JSON.stringify(o,replacer))
+       * to include typical  modification of json output string determined by
+       * user  replacer(key,value) function which has global scope here
        * @param {string} key 
        * @param {SerializableO} value 
        * @returns {string}
@@ -541,22 +540,22 @@ var unCycle=
        *     circular references
        * @return {Hampered}
       */
-     afterParse: function (ojo) {
-       this.uiDirect.resetData();
-       this.fillDirectory(ojo);
-       this.circularize(ojo, this);
-       return ojo;
+      afterParse: function (ojo) {
+        this.uiDirect.resetData();
+        this.fillDirectory(ojo);
+        this.circularize(ojo, this);
+        return ojo;
       },
       /**
        * handle object after being parsed to restore circular references
        * and accounting other correction determined by user reviver function,
-      *
-      * @param {SerializableO} ojo object for post-parse handling
-      *   ojo means transformation:
-      *       o-> preStringify(o) -> o // new state of o
-      *        -> oj=json.stringify(o) -> ojo=json.parse(oj)-> ojo=postParse(ojo)
-      * ojo conforms o i.e. has identical properties and internal
-      *   circular references
+       *
+       * @param {SerializableO} ojo object for post-parse handling
+       *   ojo means transformation:
+       *       o-> preStringify(o) -> o // new state of o
+       *        -> oj=json.stringify(o) -> ojo=json.parse(oj)-> ojo=postParse(ojo)
+       * ojo conforms o i.e. has identical properties and internal
+       *   circular references
        * @return {Hampered}
        */
       postParse: function (ojo) {
@@ -638,8 +637,8 @@ var unCycle=
         }
         return value;
       },
-      /** reviver method preserving uids properties of
-       * subobjects of object handling
+      /** reviver method preserving `uid` properties of
+       * subobjects of the top object handling
        * it is not used in the actual code
        */
       reviverShowUids: function (key, value) {
@@ -702,18 +701,18 @@ var unCycle=
         return o;
       },
       /**
-       * regarding setting parameters: showUids, uidsUndefined, noDelete
-       *
-       * showUids - determines to show or not `uid` property of subobjects.
+       * regarding setting parameters: 
+       *       showUids, uidsUndefined, noDelete
+       * - showUids - determines to show or not `uid` property of subobjects.
        *    `uid` property is used in calculation and clarifies understanding
        *    of details. But it's inserted by program and is not initial
        *    outlay so user could not see it in output. default is false.
        *    to set true use code - uncycle.uiDirect.showUids = true;
-       * uidsUndefined - this parameter is connected to showUids and 
+       * - uidsUndefined - this parameter is connected to showUids and 
        *    set the option not to delete uids of subobject by delete o[uid]
        *    when showUid === false but set them undefined to save processing
        *    time
-       * noDelete - this switch permits or not to delete some object's 
+       * - noDelete - this switch permits or not to delete some object's 
        *    properties or set them undefined to save processing time.
        *    noDelete works evrywhere excluding direct use of method noUids.*/
       /**
@@ -762,6 +761,44 @@ var unCycle=
        *   reviver( key,value ) function parameter and
        *   newValue is the value set for appropriate (key,value) pair in reviver
        *   function
+       *   ojo is object already parsed
+       *   Each property (key,value)  is parsed on the one by one basis.
+       *
+       * This means that all primitive type properties
+       * presumed to be changed, set or deleted before the Last Step. 
+       * Last Step - last parse cycle iteration over all properties and
+       * subproperties at which `key = '' and value === ojo`,
+       * where ojo - object containing properties already parsed.
+       * 
+       * What is to be done before the last iteration is to modify uiDirect
+       * object in accordance with unCycle.kvn array  unCycle.uiDirect.
+       * !!Important: kvn array should be reset by unCycle.kvnO.resetkvn()
+       * or unCycle.kvn.splice(0)
+       * `circularize` methos replaces patches (a patch is 
+       * `ojo[somePropName]=someUid` ) by
+       * values through assigning `ojo[somePropName]=uc.uiDiredt[someUid]`.
+       *
+       * it's possible that `ojo` has few properties whose value are =someUid
+       * Among them those who are prescripted to be deleted by kvn should be
+       * deleted (or setting to undefined (?) if any)
+       * ( condition for that:
+       * ```
+       *   kvn[0]===somePropName
+       *   kvn[1]===someUid
+       *   kvn[2]===undefined
+       * ```
+       * ),
+       * another ones should have their values to be set to undefined
+       * Further `ud` is `uiDirect` for shortness.
+       * For that properties `ud[somUid1] === someUid` and should be set
+       * to `ud[someUid1] = undefined`
+       * Taking into account the feature that
+       * ```
+       * ud[someUid1]===ojo[someKey1Parent][someKey1].value 
+       * ```
+       * While `ud[someUid1]` is changing it's changed 
+       * `ojo[someKey1Parent][someKey1];` as well.
+       * Therefore the all we need to do is to change ud[someUid1] value
        * @type {KeyValueNewValues} */
       kvn: [],
       /**
@@ -1111,6 +1148,7 @@ var unCycle=
  * in JSON.parse(oj,unCycle.reviver) when parcing json string oj
  */
 //exports.reviver =
+/** @type {function(string,*):*} */
 var reviver =
   function (key, value) {
     var uc = unCycle;
@@ -1139,6 +1177,7 @@ var reviver =
   };
 /** returns test object */
 // exports.ojoTest = (function () {
+/** @type {SerializableO} */  
 var ojoTest = (function () {
   return {
     a: '#',
