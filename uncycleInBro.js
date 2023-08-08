@@ -260,7 +260,42 @@ var unCycle=
           }
         }
       },
-      
+      fillDirect: function (o, opt_pUid, opt_oId, pO) {
+        var pUid, oId, oUid, ip, ia;
+        
+        pUid = (opt_pUid || opt_pUid === 0) ? opt_pUid : 
+            ((pO && pO.im)? pO.im :
+             ((pO && pO.id)? pO.id :
+              ((o.rim)? o.rim : '')));
+
+        oId = (opt_oId || opt_oId === 0) ? opt_oId : 
+            ((o.id)? o.id : ((o.im)? o.im : ''));
+
+        oUid = this.addTrio(o, pUid, oId, pO);
+
+        var oT = (!pO || oId === undefined)? o : pO[oId];
+
+        this.fDO(oT);
+        this.fDA(oT,oUid);          
+      },
+      fDO: function(o){
+        if (this.isOb(o)) {
+          for (ip in o) {
+            if (this.isOb(o[ip]) || this.isAr(o[ip])) {
+              this.fillDirect(o[ip], o.uid, ip, o);
+            }
+          }
+        }
+      },
+      fDA: function(o,oUid){
+        if (this.isAr(o)) {
+          for (ia = 0; ia < o.length; ia++) {
+            if (this.isOb(o[ia]) || this.isAr(o[ia])) {
+              this.fillDirect(o[ia], oUid, ia, o);
+            }
+          }
+        }
+      },
       /**
        * Returns the references (value's address)
        * of the subproperty or the element at appropriate "depth" level 
@@ -1067,18 +1102,13 @@ var unCycle=
           }
         },
         rDAO: function(uid,oRef,ojo,vals,...opt){
-          let subRef = vals[opt[0]];
-          if (this.isAr(subRef)) {
             if( opt.length === 1){
-              this.rDA(uid,oRef,ojo,vals,opt[0]);} else {
+              this.rDA(uid,oRef,ojo,vals,opt[0]);
+              this.rDO(uid,oRef,ojo,vals,opt[0]);
+            } else {
               this.rDA(uid,oRef,ojo,vals,opt[0],opt[1]);
+              this.rDO(uid,oRef,ojo,vals,opt[0],opt[1]);
             }
-          } else if (this.isOb(subRef)) {
-            if( opt.length === 1){
-                this.rDO(uid,oRef,ojo,vals,opt[0]);}else{
-                this.rDO(uid,oRef,ojo,vals,opt[0],opt[1]);
-            }   
-          }
         },
         refDarnerNew: function (uid, oRef, ojo, vals, ...opt) { 
           let [iv,ip] = opt;
