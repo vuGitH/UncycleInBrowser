@@ -388,7 +388,7 @@ var unCycle=
          * @param {number} ip subproperty index 
          * @return{void}
         */
-      refDarnerNew: function (uid, oRef, ojo, vals, ...opt) { 
+      refDarner: function (uid, oRef, ojo, vals, ...opt) { 
         let [iv,ip] = opt;
         if (iv === undefined) { throw 'iv should be set obligatorily';}        
         if (ip === undefined) {
@@ -415,7 +415,7 @@ var unCycle=
           uid = h.uiDirect.uids[iu];
           oRef = this.refer(uid, ojo);
           for (var iv = 0; iv < h.uiDirect.vals.length; iv++) {
-            this.refDarnerNew(uid, oRef, ojo, h.uiDirect.vals, iv);
+            this.refDarner(uid, oRef, ojo, h.uiDirect.vals, iv);
           }
         }
         return ojo;
@@ -991,7 +991,7 @@ var unCycle=
        */
       uidValRepl: function (ojo, uidAsVal, newVal, ud) {
         for (var iv = ud.vals.length - 1; iv >= 0; iv--) {
-          this.refDarnerNew(uidAsVal, newVal, ojo, ud.vals, iv);
+          this.refDarner(uidAsVal, newVal, ojo, ud.vals, iv);
         }
         //console.log(ojo);
       },
