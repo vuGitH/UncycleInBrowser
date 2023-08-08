@@ -1,11 +1,11 @@
+// uncycleInBro.js
 /**
- * @fileoverview the file is a sample of conversion node.js module to
- * single object librarty to use as <script> library
- * require('uncycle').handler is the same object as var uncycle=(function{return {...unCycle Object};})
+ * @fileoverview  a sample of library for use in a browser
+ * to load through <script> tag
+ * <script type="text/javascript" src="uncycleInBro.js"></script>
+ * require('uncycle').handler is the same as object unCycle.
  * @athour <Vladimir Uralov>v.url.node@gmail.com
 */
-// uncycle.js
-//exports.handler =
 /** 
 * @typedef {Object|Array} SourceO with any kinds of members
 * @typedef {Object|Array} SerializableO object with all memebers 
@@ -47,9 +47,33 @@
 * @typedef {Uid} ParentUid uid of parent Object
 * @typedef {object|Boolean|Date|Number|RegExp|String} Any parameter
 */
+/** 
+    * @typedef {string} UidPart uid's part of appropriate level
+    *    without prefix "#".
+    *    effectively it's a property name or element index of a
+    *    memer placed on appropriate levle of SourceObj hierarchy
+    * @typedef {string} EvalStr string of probable eveluation of
+    *    member value
+    *
+    * Constructs expression (EvalStr) used to form object
+    * variable literal ( could be used in eval function if any)
+    * and sets appropriate object(subobject) value which should be
+    * used as insertion into object as value of circular reference
+    * @example
+    *    
+    *    uid  -     '##c#z#4'    {string}
+    *                |
+    *    uid parts:  # .. #c .. #z .. 4
+    *    uils= [     '' , 'c' , 'z' , 4 ]    {string[]}
+    *  var oo={};    |     |     |     |
+    *     evStr = 'oo  ["c"] ["z"] [4]'  ='oo["c"]["z"][4]';
+    *  eval(evStr)->eval( var oo={c:{z:['','','','',oo["c"]["z"][4]]}};')
+    *  if you use eval. Other option to create direct variable reference
+    *  exists and provides the same results - refer (see below)
+    */
 /** @typedef {Object} UnCycle */
 /** @type {UnCycle} */
-var unCycle=
+var unCycle= 
   (function (){
     return {
       /**
@@ -835,52 +859,7 @@ var unCycle=
        * <filter> method on the basis of user <reviver> function
        * @param {SerializableO} ojo object parsed but demanding modification
        *   taking into account `reviver` function corrections
-       * @param {KeyValueNewValues} kvn - keysValsNewVs 2d-array, each row of which
-       *   is an array [key,value,newValue]
-       *   where key and value are input parameters of standard JSON.parse()
-       *   reviver{function(key,value)} function-parameter and
-       *   newValue - is the value setting for appropriate key in `reviver`
-       *   ojo is object already parsed
-       *   Each property (key,value)  is parsed on the one by one basis.
-       *
-       * This means that all primitive type properties
-       * presumed to be changed, set or deleted before the Last Step. 
-       * Last Step - last parse cycle iteration over all properties and
-       * subproperties at which `key = '' and value === ojo`,
-       * where ojo - object containing properties already parsed.
-       * 
-       * What is to be done before the last iteration is to modify uiDirect
-       * object in accordance with unCycle.kvn array  unCycle.uiDirect.
-       * !!Important: kvn array should be reset by unCycle.kvnO.resetkvn()
-       *
-       * `circularize` methos replaces patches (a patch is 
-       * `ojo[somePropName]=someUid` ) by
-       * values through assigning `ojo[somePropName]=uc.uiDiredt[someUid]`.
-       *
-       * it's possible that `ojo` has few properties whose value are =someUid
-       * Among them those who are prescripted to be deleted by kvn should be
-       * deleted (or setting to undefined (?) if any)
-       * ( condition for that:
-       * ```
-       *   kvn[0]===somePropName
-       *   kvn[1]===someUid
-       *   kvn[2]===undefined
-       * ```
-       * ),
-       * another ones should have their values to be set to undefined
-       * Further `ud` is `uiDirect` for shortness.
-       * For that properties `ud[somUid1] === someUid` and should be set
-       * to `ud[someUid1] = undefined`
-       * Taking into account the feature that
-       * ```
-       * ud[someUid1]===ojo[someKey1Parent][someKey1].value 
-       * ```
-       * While `ud[someUid1]` is changing it's changed 
-       * `ojo[someKey1Parent][someKey1];` as well.
-       * Therefore the all we need to do is to change ud[someUid1] value
-       *
-       * if ojo[somePropName] should be deleted on the bases of ud.kvn values
-       * it means that
+       * @param {KeyValueNewValues} kvn - keysValsNewVs 2d-array, 
        */
       changeOjoVals: function (ojo, kvn) {
         if (!kvn || !(kvn.length && kvn.length > 0)) {
@@ -1046,7 +1025,6 @@ var unCycle=
         
     };
   }());
-
 /**
  * criterion to identify <circular refference>
  *
