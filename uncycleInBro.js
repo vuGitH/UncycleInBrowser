@@ -50,7 +50,7 @@
 /** @typedef {Object} UnCycle */
 /** @type {UnCycle} */
 var unCycle=
-  (function () {
+  (function (){
     return {
       /**
        * check if parameter is ordinary object and not an Array
@@ -163,7 +163,8 @@ var unCycle=
         return oUid;
       },
       /**
-       * adds  members' data into uids Directory ( trio - vals,uids,oids )
+       * adds  members' data into uids Directory ( trio - vals,uids,oids or
+       * another trio - pUid, oid, oUid )
        * @param {MemberO} o - analysing object
        * @param {Uid} pUid - parent uid
        * @param {Oid} oId - object identifyer (key) o=pO[oId]
@@ -265,43 +266,45 @@ var unCycle=
        * and the uil value is index of the element
        *  !!important equation!!:
        *  unCycle.uiDirect[uid]===unCycle.refer(uid,ojo) if
-       *  unCycle.uiDirect has been got after unCycle.fillDirectoryory(ojo)
+       *  unCycle.uiDirect has been got after unCycle.fillDirectory(ojo)
        *  This means that if uncycle.refer(uid,ojo)===undefined then nested
        *  property does not exist or connection between uiDirect and input
        *  object has been destroied
        * @param {Uid} uid string of uid value
-       * @param {SerializableO} ojo - object of modification. Could be the result of
-       *   reverse json conversion o->oj->ojo o -> json.stringify -> json.parse
+       * @param {SerializableO} ojo - object of modification. Could be the
+       *   result of reverse json conversion
+       *   o->oj->ojo o -> json.stringify -> json.parse
        * @return {Val} uid's entity value reference(address)
+       *   link , reference addres of uid entity object (i.e. value address)
        */
       refer: function (uid, ojo) {
         var uils = uid.split('#').slice(1); // uids for levels
-        var oRef = ojo;
+        var oRef = ojo,
+            uil,
+            prefx = (ojo.id)? ojo.id : ((ojo.im)? ojo.im : '');
+        if (uils[0] === prefx) { return oRef; }
         for (var il = 0; il < uils.length; il++) {
-          var uil = uils[il];
-          // oRef at input  is top level entity reference,
-          // output is next level deep top reference entity
-          oRef = this.oRefer(ojo, oRef, uil, il); // oRef is overassigned each step          
+          uil = uils[il];
+          oRef = this.oRefer(oRef, uil); // oRef is overassigned each step          
           // so deep penetration into ojo is carried out
         }
-        return oRef; // link , reference addres of uid object (i.e. value address)
+        return oRef;
       },
       /**
        * recursive adder of index appropriate uil and il
+       * oRef at input  is top level entity reference,
+       * output is next level deep top reference entity
        * @param {SerializableO} ojo
        * @param {SerializableO|Hampered} oRef 
-       * @param {UidPart} uil part of uid appropriate to level il
+       * @param {UidPart} uil part of uid appropriate to level il literally
+       *     the name of a property
        * @param {number} il level index. Level describes the subproperty
        *     inclosure order
-       * @return {SerializableO|Uid} element or property serializable reference
+       * @return {SerializableO|Val} element or property serializable reference
        *     (address) to value 
        */
-      oRefer: function (ojo, oRef, uil, il) {
-        var prefx = (ojo.id)? ojo.id : ((ojo.im)? ojo.im : '');
-        
-        if (uil === prefx && il === 0) {
-          return oRef;
-        } else if (/^[0-9]+$/.test(uil)) {
+      oRefer: function ( oRef, uil) {
+       if (/^[0-9]+$/.test(uil)) {
           return oRef[parseInt(uil, 10)];
         } else if (/^\w+/.test(uil)) {
           return oRef[uil];
