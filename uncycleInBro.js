@@ -1227,8 +1227,8 @@ var reviver =
   };
 /** returns test object */
 // exports.ojoTest = (function () {
-/** @type {SerializableO} */  
-var ojoTest = (function () {
+  var ojoTest = function () {
+  /** @type {SerializableO} */  
   return {
     a: '#',
     b: [0, {
@@ -1255,4 +1255,4 @@ var ojoTest = (function () {
       p2: 2
     }
   };
-}());
+};
