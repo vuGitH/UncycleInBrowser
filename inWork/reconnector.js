@@ -24,79 +24,6 @@ let Reconnector = (function(){
      * @param {number} ip subproperty index 
      * @return{void}
      */
-    refDarner: function (uid, oRef, ojo, vals, iv, ip) {
-      if (iv === undefined || iv === '') {
-        throw 'iv should be set obligatorily';
-      }
-      var ia;
-      if (ip === undefined || ip === '') {
-        if (this.isAr(vals[iv])) {
-          // val is array
-          for (ia = 0; ia < vals[iv].length; ia++) {
-            if (!this.isAr(vals[iv][ia]) || !this.isOb(vals[iv][ia])) {
-              if (vals[iv][ia] === uid) {
-                vals[iv][ia] = oRef; 
-              }
-            } else {
-              this.refDarner(uid, oRef, ojo, vals, iv, ia);
-            }
-          }
-        } else if (this.isOb(vals[iv])) {
-          // val is object
-          for (var i in vals[iv]) {
-            if (!this.isAr(vals[iv][i]) || !this.isOb(vals[iv][i])) {
-              if (vals[iv][i] === uid && i !== 'uid') {
-                vals[iv][i] = oRef;
-              }
-              if (i === 'uid' && !this.uiDirect.showUids) {
-                // -- no uids
-                if (this.uiDirect.uidsUndefined === true ||
-                  this.uiDirect.noDelete === true) {
-                  vals[iv][i] = undefined;
-                } else {
-                  delete vals[iv][i];
-                }
-              }
-            } else {
-              this.refDarner(uid, oRef, ojo, vals, iv, i);
-            }
-          }
-        }
-      } else {
-        if (this.isAr(vals[iv][ip])) {
-          // val is array
-          for (ia = 0; ia < vals[iv][ip].length; ia++) {
-            if (!this.isAr(vals[iv][ip][ia]) || !this.isOb(vals[iv][ip][ia])) {
-              if (vals[iv][ip][ia] === uid) {
-                vals[iv][ip][ia] = oRef;
-              }
-            } else {
-              this.refDarner(uid, oRef, ojo, vals[iv], ip, ia);
-            }
-          }
-        } else if (this.isOb(vals[iv][ip])) {
-          // val is object
-          for (var ipp in vals[iv][ip]) {
-            if (!this.isAr(vals[iv][ip][ipp]) || !this.isOb(vals[iv][ip][ipp])) {
-              if (vals[iv][ip][ipp] === uid && ipp !== 'uid') {
-                vals[iv][ip][ipp] = oRef;
-              }
-              if (ipp === 'uid' && !this.uiDirect.showUids) {
-                // -- no uids
-                if (this.uiDirect.uidsUndefined === true ||
-                  this.uiDirect.noDelete === true) {
-                  vals[iv][ip][ipp] = undefined;
-                } else {
-                  delete vals[iv][ip][ipp];
-                }
-              }
-            } else {
-              this.refDarner(uid, oRef, ojo, vals[iv], ip, ipp);
-            }
-          }
-        }
-      }
-    },  
     rDA: function(uid, oRef, ojo, vals, ...opt){
       let [iv,ip] = opt;
       let [valRef,vls,ix] = (opt.length === 1) ?
@@ -119,75 +46,69 @@ let Reconnector = (function(){
       let [valRef, vls, ix] = (opt.length === 1) ?
       [vals[iv], vals, iv] : [vals[iv][ip], vals[iv], ip];
       if (this.isOb(valRef)) {
-        // val is object
-        for (var i in valRef) {
-          if (!this.isAr(valRef[i]) || !this.isOb(valRef[i])) {
-            if (valRef[i] === uid && i !== 'uid') {
-              vls[ix][i] = oRef;
-            }
-            if (i === 'uid' && !this.uiDirect.showUids) {
-              // -- no uids
-              if (this.uiDirect.uidsUndefined === true ||
-                this.uiDirect.noDelete === true) {
-                  valRef[i] = undefined;
-                } else {
-                  delete valRef[i];
-                }
+      // val is object
+      for (var i in valRef) {
+        if (!this.isAr(valRef[i]) || !this.isOb(valRef[i])) {
+          if (valRef[i] === uid && i !== 'uid') {
+            vls[ix][i] = oRef;
+          }
+          if (i === 'uid' && !this.uiDirect.showUids) {
+            // -- no uids
+            if (this.uiDirect.uidsUndefined === true ||
+              this.uiDirect.noDelete === true) {
+                valRef[i] = undefined;
+              } else {
+                delete valRef[i];
               }
-            } else {
-              this.rDAO(uid, oRef, ojo, vls, ix, i);
             }
+          } else {
+            this.rDAO(uid, oRef, ojo, vls, ix, i);
           }
         }
-      },
-      rDAO: function(uid,oRef,ojo,vals,...opt){
-        let subRef = vals[opt[0]];
-        if (this.isAr(subRef)) {
-          if( opt.length === 1){
-            this.rDA(uid,oRef,ojo,vals,opt[0]);} else {
-            this.rDA(uid,oRef,ojo,vals,opt[0],opt[1]);
-          }
-        } else if (this.isOb(subRef)) {
-          if( opt.length === 1){
-              this.rDO(uid,oRef,ojo,vals,opt[0]);}else{
-              this.rDO(uid,oRef,ojo,vals,opt[0],opt[1]);
-          }   
-        }
-      },
-      refDarnerNew: function (uid, oRef, ojo, vals, ...opt) { 
-        let [iv,ip] = opt;
-        if (iv === undefined) { throw 'iv should be set obligatorily';}        
-        if (ip === undefined) {
-          this.rDAO(uid,oRef,ojo,vals,opt[0]);
-        } else {
-          this.rDAO(uid,oRef,ojo,vals,opt[0],opt[1])
-        }
-      }, 
+      }
+    },
+    rDAO: function(uid,oRef,ojo,vals,...opt){
+      if( opt.length === 1){
+        this.rDA(uid,oRef,ojo,vals,opt[0]);
+        this.rDO(uid,oRef,ojo,vals,opt[0]);
+      } else {
+        this.rDA(uid,oRef,ojo,vals,opt[0],opt[1]);
+        this.rDO(uid,oRef,ojo,vals,opt[0],opt[1]);
+      }
+    },
     /**
-         * browses through ojo object's properties and subproperties
-         * to replace patches by reference from array vals
-         * ( unCycle.uiDirect.vals) if any
-         * @param {Uid} uid uid value
-         * @param {Reference| Val} oRef - structural reference to the memory
-         *     location of entity specified by uid. Obtained recursively
-         *     reproducting internal hierarchical structure of object 
-         *     indicated in object property literal link. That reference 
-         *     is used to assign or to get value for substitution of string
-         *     "patch"
-         * @param {SerializableO} ojo object in proccessing
-         * @param {Vals } vals array of substitution
-         *     objects. Here the whole array is used as a parameter but not the
-         *     element approptiate to uid in
-         *     <uids> vs <vals> pairs.  val appropriating to uid is val=vals[iv]
-         *     Such form permits passing any changes of elements outside
-         *     of method function. Change of vals provides of appropriate change
-         *     of ojo object
-         * @param {number} iv actual index of vals element 
-         *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
-         * @param {number} ip subproperty index 
-         * @return{void}
-         */
-
+     * browses through ojo object's properties and subproperties
+     * to replace patches by reference from array vals
+     * ( unCycle.uiDirect.vals) if any
+     * @param {Uid} uid uid value
+     * @param {Reference| Val} oRef - structural reference to the memory
+     *     location of entity specified by uid. Obtained recursively
+     *     reproducting internal hierarchical structure of object 
+     *     indicated in object property literal link. That reference 
+     *     is used to assign or to get value for substitution of string
+     *     "patch"
+     * @param {SerializableO} ojo object in proccessing
+     * @param {Vals } vals array of substitution
+     *     objects. Here the whole array is used as a parameter but not the
+     *     element approptiate to uid in
+     *     <uids> vs <vals> pairs.  val appropriating to uid is val=vals[iv]
+     *     Such form permits passing any changes of elements outside
+     *     of method function. Change of vals provides of appropriate change
+     *     of ojo object
+     * @param {number} iv actual index of vals element 
+     *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
+     * @param {number} ip subproperty index 
+     * @return{void}
+     */
+    refDarner: function (uid, oRef, ojo, vals, ...opt) { 
+      let [iv,ip] = opt;
+      if (iv === undefined) { throw 'iv should be set obligatorily';}        
+      if (ip === undefined) {
+        this.rDAO(uid,oRef,ojo,vals,opt[0]);
+      } else {
+        this.rDAO(uid,oRef,ojo,vals,opt[0],opt[1])
+      }
+    }, 
     /**
      * searches for and darns (replaces) uid-like string patches
      * @param {SerializableO} ojo object possibly parsed after serialization
@@ -200,7 +121,7 @@ let Reconnector = (function(){
         uid = ud.uids[iu];
         oRef = this.refer(uid, ojo); // reference
         for (var iv = iu; iv < ud.vals.length; iv++) {
-          this.refDarnerNew(uid, oRef, ojo, ud.vals, iv); // replace string patches by reference
+          this.refDarner(uid, oRef, ojo, ud.vals, iv); // replace string patches by reference
         }
       }
     },
@@ -215,7 +136,7 @@ let Reconnector = (function(){
         var oRef = this.refer(uid, ojo);
         var iu = ud.uids.indexOf(uid);
         for (var iv = iu; iv < ud.vals.length; iv++) {
-          this.refDarnerNew(uid, oRef, ojo, ud.vals, iv);
+          this.refDarner(uid, oRef, ojo, ud.vals, iv);
         }
     },
   };
@@ -294,7 +215,7 @@ let Darn = (function(){
         evStr = this.getEvStr(uid, oVL);
         let oRf = eval(evStr);
         for (var iv = iu; iv < ud.vals.length; iv++) {
-          this.refDarnerNew(uid, oRf, ojo, ud.vals, iv);
+          this.refDarner(uid, oRf, ojo, ud.vals, iv);
         }
       }
     },
