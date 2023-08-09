@@ -260,6 +260,11 @@ var unCycle=
         this.fDO(oT);
         this.fDA(oT,oUid);          
       },
+      /**
+       * sub-method of fillDirectory to handle objects
+       * @param {MemberO} o
+       * @return {void}
+       */
       fDO: function(o){
         if (this.isOb(o)) {
           for (ip in o) {
@@ -269,6 +274,12 @@ var unCycle=
           }
         }
       },
+      /**
+       * sub-method of fillDirectory to handle arrays
+       * @param {MemberO} o 
+       * @param {Uid} oUid
+       * @return {void} 
+       */
       fDA: function(o,oUid){
         if (this.isAr(o)) {
           for (ia = 0; ia < o.length; ia++) {
@@ -336,6 +347,17 @@ var unCycle=
           throw 'something is going wrong';
         }
       },
+      /**
+       * refDAO sub-method to handle Arrays (see refDarner)
+       * @param {Uid} uid uid value
+       * @param {Reference| Val} oRef - structural reference 
+       *     value substituting  "patch"
+       * @param {Array} ojo Array
+       * @param {number} iv actual index of vals element 
+       *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
+       * @param {number} ip subproperty index 
+       * @return{void}
+       */
       rDA: function(uid, oRef, ojo, vals, ...opt){
         let [iv,ip] = opt;
         let [valRef,vls,ix] = (opt.length === 1) ?
@@ -353,6 +375,17 @@ var unCycle=
           }
         }
       },
+      /**
+      * refDAO sub-method to handle Objects (see refDarner)
+      * @param {Uid} uid uid value
+      * @param {Reference| Val} oRef - structural reference 
+      *     value substituting  "patch"
+      * @param {Array} ojo Array
+      * @param {number} iv actual index of vals element 
+      *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
+      * @param {number} ip subproperty index 
+      * @return{void}
+      */      
       rDO: function(uid,oRef,ojo,vals,...opt){
         let [iv,ip] = opt;
         let [valRef, vls, ix] = (opt.length === 1) ?
@@ -379,6 +412,17 @@ var unCycle=
           }
         }
       },
+      /**
+      * refDarner sub-method to handle Objects (see refDarner)
+      * @param {Uid} uid uid value
+      * @param {Reference| Val} oRef - structural reference 
+      *     value substituting  "patch"
+      * @param {Array} ojo Array
+      * @param {number} iv actual index of vals element 
+      *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
+      * @param {number} ip subproperty index 
+      * @return{void}
+      */ 
       rDAO: function(uid,oRef,ojo,vals,...opt){
         if( opt.length === 1){
           this.rDA(uid,oRef,ojo,vals,opt[0]);
@@ -469,7 +513,7 @@ var unCycle=
         return o;
       },
       /**
-       * replacer to use as second parameter of
+       * `replacer` to use as second parameter of
        * JSON.stringify(o,unCycle.replacer) to stringify
        * objects with circular references
        * parameters key and value is set by definition of JSON.stringify(...)
@@ -490,6 +534,54 @@ var unCycle=
       replacerUser: undefined,
       reviverUser: undefined,
       /**
+       * 
+       * @param {string} caller 
+       * @param {UnCycle} uc
+       * @returns {string} 'revUser'|'revLocal'|'repUser'|repLocal'|noth'
+       */
+      jsonArg2: function(caller,uc) {
+        let c = caller.slice(0,3);       
+        if( c === "rep") {          
+          try {
+            rep = (uc.replacerUser && typeof uc.replacerUser === 'function') ?
+              'user' : 'not';
+          } catch (e) {
+            if (/(\b\w+\b\s|\s)is not defined/.test(e)) {
+              rep =  'not';
+            } 
+          }
+          if (rep === 'user'){return 'user';}
+          try {
+            return (replacer && typeof replacer === 'function') ?
+              'local' : 'not';
+          } catch (e) {
+            if (/(\b\w+\b\s|\s)is not defined/.test(e)) {
+              return 'not';
+            } 
+          }
+        } else if (c === 'rev') {
+          try {
+            rev = (uc.reviverUser && typeof uc.reviverUser === 'function') ?
+              'user' : 'not';
+          } catch (e) {
+            if (/(\b\w+\b\s|\s)is not defined/.test(e)) {
+              rev = 'not';
+            }
+          }
+          if (rev === 'local') return 'user';
+          try {
+            return (reviver && typeof reviver === 'function') ?
+              'local' : 'not';
+          } catch (e) {
+            if (/(\b\w+\b\s|\s)is not defined/.test(e)) {
+              return  'not';
+            }
+          }
+
+        } 
+        return "not";        
+      },
+      /**
        * extending variant of replacer function (inside JSON.stringify(o,replacer))
        * to include typical  modification of json output string determined by
        * user  replacer(key,value) function
@@ -498,25 +590,15 @@ var unCycle=
        * @returns {string}
        */
       replacer: function (key, value) {
-        var uc = unCycle;
+        var uc = unCycle;        
         var replacerSet;
         if (key === '' || key === undefined || !key && (key !== 0)) {
-         uc.preStringify(value);
+          uc.preStringify(value);
         } else {
-          try {
-            replacerSet = (
-              uc.replacerUser !== undefined &&
-              typeof uc.replacerUser === 'function') ?
-              true : false;
-          } catch (e) {
-              if (/(\b\w+\b\s|\s)is not defined/.test(e)) {
-                replacerSet = false;
-              } else {
-                throw (e);
-              }
-          }
-          if (replacerSet) {
-            return uc.replacerUser(key, value); // user replacer function;
+          if( uc.jsonArg2("replacer",uc) === 'user'){
+            return uc.replacerUser(key, value);
+          }else if(uc.jsonArg2('replacer',uc) === 'local'){
+            return replacer(key, value);
           }
         }
         return value;
@@ -527,7 +609,7 @@ var unCycle=
        * user  replacer(key,value) function which has global scope here
        * @param {string} key 
        * @param {SerializableO} value 
-       * @returns {string}
+       * @returns {*}
        */
       replacerWork: function (key, value) {
         var replacerSet;
@@ -633,33 +715,24 @@ var unCycle=
       },
       reviver: function (key, value) {
         var uc = unCycle;
-        var reviverSet;
-        if (!key) {
+        if (key === '' || key === undefined || !key && (key !== 0)) {
           uc.postParse(value);
         } else {
-          try {
-            reviverSet = (uc.reviverUser !== undefined &&
-                typeof uc.reviverUser === 'function') ?
-              true : false;
-          } catch (e) {
-            if (/(\b\w+\b\s|\s)is not defined/.test(e)) {
-              reviverSet = false;
-            }
-          }
-          if (reviverSet) {
-            // -- console.log('reviverUser is set');
+          if( uc.jsonArg2("reviver",uc) === 'user'){
             if (uc.isOb(value) || uc.isAr(value)) {
-              // return uc.filter(key,value,reviver);
-              // -- console.log('going to filter from reviver');
               return uc.filter(key, value, uc.reviverUser);
             } else {
-              // -- console.log('value is not objject or array and =');
-              // -- console.log('key = %s, value =%s \nretruns uc.reviverUser= %s' ,key,value,uc.reviverUser(key,value));
               return uc.reviverUser(key, value);
+            }
+          }else if(uc.jsonArg2('reviver',uc) === 'local'){
+            if (uc.isOb(value) || uc.isAr(value)) {
+              return uc.filter(key, value, reviver);
+            } else {
+              return reviver(key, value);
             }
           }
         }
-        return value;
+        return value;       
       },
       /** reviver method preserving `uid` properties of
        * subobjects of the top object handling
@@ -683,7 +756,6 @@ var unCycle=
           }
           if (reviverSet) {
             if (uc.isOb(value) || uc.isAr(value)) {
-              // return uc.filter(key,value,reviver);
               return uc.filter(key, value, uc.reviverUser);
             } else {
               return uc.reviverUser(key, value);
@@ -837,15 +909,15 @@ var unCycle=
        * @param {*} value 2nd parameter of `reviver` function of 
        *     JSON.parse(o,reviver) being property's value of name key of
        * parsing object being modified after having been parsed
-       * @param {function(key,value)} reviver - user function returning object
+       * @param {function(key,value)} reviverF - user function returning object
        *     described in JSON object docs.
        *     ( unCycle.reviver and user's `reviver` are different functions)
        * @return {} always return value from input (key,value) paramters;
        */
-      filter: function (key, value, reviver) {
+      filter: function (key, value, reviverF) {
         var filt;
         if (this.isOb(value) || this.isAr(value)) {
-          filt = reviver(key, value);
+          filt = reviverF(key, value);
           if (value !== filt) {
             this.kvn.push([key, value, filt]);
           } else if (value === undefined && filt === undefined) {
@@ -887,6 +959,7 @@ var unCycle=
        * @param {Array} kvn - 2d-array [[key,value,newValue]] formed in
        *   `unCycle.filter` method
        * @param {number} ir index of kvn row should be taken to modify ojo
+       * @param {boolean=} cutUiDirect
        // Замечание. Процедура учитывает не только возможность
        // уникального значения свойства, но и ситуацию, когда
        // несколько подобъектов имеют одинаковые значения.
@@ -896,8 +969,7 @@ var unCycle=
        * there are few properties which value are equal to uid and therefore
        * they all should be exhanged to undefined or to newValue
        */
-      modifyObjs: function (ojo, kvn, ir, opt_cutUiDirect) {
-        var cutUiDirect = opt_cutUiDirect || false; //
+      modifyObjs: function (ojo, kvn, ir, cutUiDirect=false) {
         var start = 0;
         var jVal, uid;
         while (this.uiDirect.vals.indexOf(kvn[ir][1], start) >= 0) {
