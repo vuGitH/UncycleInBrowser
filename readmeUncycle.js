@@ -1,77 +1,80 @@
 var readMeUncycle = function () {
     let txt = 
         '\n' +
-        '      * ----  unCycle module  ---- *\n' +
-        ' unCycle module provides a handler making JSON capable \n' +
+        '      <h2>* ----  unCycle package example to use in browser  ---- *</h2>\n' +
+        ' unCycle package provides capabilities making JSON capable \n' +
         ' to stringify and parse objects with circular references and\n' +
-        ' having RegExp objects as  properties. How does it look like?\n' +
-        ' While having been installed locally handler is loaded by :\n\n' +
+        ' having RegExp objects as  properties. \n' +
+        ' While having been loaded in a page by means of <script> tag:\n' +
+        ' e.g.\n\n ' +
+        '<script type="text/javascript" src="uncycleInBro.js"></script>\n' +
+        '( see simple html page in file testPage.html\n\n' +
 
-        '      h=require(\'./uncycle\').handler;\n' +
+        '     <code> h = unCycle;</code>\n' +
         '\n' +
-        ' variant of use 1:\n' +
+        ' <h3>variant of use 1:</h3>\n' +
         '\n' +
-        '      o  = h.preStringify(o);     // or simply h.preStringify(o);\n' +
+        '      <code>o  = h.preStringify(o);     // or simply h.preStringify(o);\n' +
         '      oj = JSON.stringify(o);\n' +
         '\n' +
         '      ojo = JSON.parse(oj);\n' +
-        '      ojo = h.postParse(ojo);     // or simply  h.postParse(ojo); \n' +
+        '      ojo = h.postParse(ojo);     // or simply  h.postParse(ojo);</code> \n' +
         ' that\'s it.\n' +
         '\n' +
-        ' variant 2:\n' +
+        '<h3> variant 2:</h3>\n' +
         '\n' +
-        '      oj  = JSON.stringify( o, h.replacer );\n' +
-        '      ojo = JSON.parse    ( oj, h.reviver );\n' +
+        '     <code> oj  = JSON.stringify( o, h.replacer );\n' +
+        '      ojo = JSON.parse    ( oj, h.reviver );</code>\n' +
         '\n' +
-        ' Remark 1:\n' +
+        ' <h3>Remark 1:</h3>\n' +
         ' Processing of original object o makes some changes in it.\n' +
         ' If stringifying is not your final goal and you need o for further use\n' +
         ' we should remove fingerprints and leave everything asItWas ( circularize\n' +
         ' object again).\n\n' +
-        ' Method:  h.circularize(o, h) is presumed for that purpose, i.e. :\n' +
+        ' Method:  <code>h.circularize(o, h)</code> is presumed for that purpose, i.e. :\n' +
         '\n' +
         ' v.1\n' +
         '\n' +
-        '      h.preStringify(o);\n' +
-        '      oj=JSON.stringify(o);\n' +
+        '      <code>h.preStringify(o);\n' +
+        '      oj = JSON.stringify(o);\n' +
         '\n' +
         '      h.circularize(o ,h );\n' +
         '\n' +
-        '      ojo=JSON.parse(oj);\n' +
-        '      h.postParse(ojo);\n' +
+        '      ojo = JSON.parse(oj);\n' +
+        '      h.postParse(ojo);</code>\n' +
         '\n' +
         ' v.2\n' +
         '\n' +
-        '      oj=JSON.stringify(o,h.replacer);\n' +
+        '      <code>oj = JSON.stringify(o,h.replacer);\n' +
         '      h.circularize(o,h);              // if any\n' +
-        '      ojo=JSON.parse(oj,h.reviver);\n' +
+        '      ojo = JSON.parse(oj,h.reviver);</code>\n' +
         '\n' +
-        ' Remark 2:\n' +
-        ' Variant 2 paraphrases standard use of JSON.stringify and\n' +
-        ' JSON.parse with two parameters, second of wich is a function permitting\n' +
-        ' modify output in accordance with JSON manual.\n' +
+        ' <h3>Remark 2:</h3>\n' +
+        ' Variant 2 paraphrases standard use of <code>JSON.stringify</code> and\n' +
+        ' <code>JSON.parse</code> with two parameters, second of wich is a function \n' +
+        ' modifying output in accordance with JSON manual.\n' +
         ' In our case such modification is related only with properties\n' +
         ' being circular references. Nevertheless the initial standard ability\n' +
         ' to modify handling object properties on each (key,value) bases of is\n' +
         ' preserved as well. User defined replacer and reviver functions\n' +
-        ' in the context of JSON.stringify and JSON.parse documentation\n' +
-        ' should be assigned to handler methods:\n' +
+        ' in the context of <code>JSON.stringify</code> and <code>JSON.parse</code> documentation\n' +
+        ' should be assigned to handler properties:\n' +
         '\n' +
-        '       h.replacerU=replacer;\n' +
-        '       h.reviverU=reviver;\n' +
+        '       <code>h.replacerUser = replacer;\n' +
+        '       h.reviverUser = reviver;</code>\n' +
         '\n' +
         ' where replacer and reviver are functions of two parameters\n\n' +
-        '       reviver = function(key,value){...};\n' +
-        '       replacer = function(key,value){...};\n' +
+        '       <code>reviver = function(key,value){...};\n' +
+        '       replacer = function(key,value){...};</code>\n' +
         '\n' +
         ' determined by user.\n' +
 
         ' To varify this write yours or get test object and user functions samples\n' +
         ' for test object as follows:\n' +
         '\n' +
-        '  var o = h.getTestObj(); \n' +
-        '  where\n' +
-        '    h.getTestObj=function(){\n' +
+        '  <code>var o = h.getTestObj(); \n' +
+        '  where\n\n' +
+        '  h.getTestObj = function(){\n' +
         '    var o = {\n' +
         '             a:{},\n' +
         '             b:[0, {id: \'inarr\', ob: {}},2],\n' +
@@ -94,39 +97,46 @@ var readMeUncycle = function () {
         '                        return key===\'f\'?undefined:value;\n' +
         '                      };\n' +
         '       var reviver = require(\'./uncycle\').reviver; \n' +
-        '       h.replacerU = replacer;\n' +
-        '       h.reviverU = reviver;\n' +
+        '       h.replacerUser = replacer;\n' +
+        '       h.reviverUser = reviver;\n' +
         '\n' +
-        ' and analyse\n\n' +
+        ' //and analyse\n\n' +
         ' oj = JSON.stringify(o, h.replacer);\n' +
         ' h.circularize(o, h); \n' +
-        ' ojo=JSON.parse(oj, h.reviver);\n' +
+        ' ojo = JSON.parse(oj, h.reviver);</code>\n' +
         '\n' +
         ' Differences between these two objects are appropriate to modifications\n' +
         ' determined by user functions <replacer> and <reviver>.\n' +
         '\n' +
         '\n' +
-        ' Peculiar Feature!:\n' +
+        ' <i>Peculiar Feature!:</i>\n' +
         ' Suppose we have ordinary object without circular references.\n' +
         ' Handler eats it without changing of codes, e.g.\n' +
         '\n' +
-        '      var oIn = {a: \'a\', ob:{a: \'a\', b: []}, arr: [1,2,3]};\n' +
+        '      <code>var oIn = {a: \'a\', ob:{a: \'a\', b: []}, arr: [1,2,3]}</code>;\n' +
         '\n' +
         ' So, consecutive stringify and parse in one line gives:\n' +
         '\n' +
-        '   var oOut = JSON.parse(JSON.stringify( oIn, h.replacer), h.reviver);\n' +
+        '   <code>var oOut = JSON.parse(JSON.stringify( oIn, h.replacer), h.reviver);</code>\n' +
         '\n' +
         ' // check that oOut is\n' +
-        '                {a :\'a\', ob: {a:\'a\', b: []}, arr: [1,2,3]} object but\n' +
-        '      oIn === oOut ? true : false ; // returns false - another object\n' +
+        '                <code>{a :\'a\', ob: {a:\'a\', b: []}, arr: [1,2,3]} object but\n' +
+        '      oIn === oOut ? true : false ; // returns false - another object</code>\n' +
         '\n' +
         ' the same result with circularize step:\n\n' +
-        '      oj = JSON.stringify( oIn, h.replacer);\n' +
+        '      <code>oj = JSON.stringify( oIn, h.replacer);\n' +
         '      h.circularize( oIn , h );\n' +
-        '      oOut = JSON.pars( oj, h.reviver );\n' +
+        '      oOut = JSON.pars( oj, h.reviver );</code>\n' +
         '\n' +
         '\n' +
-        '     * --- RegExp JSON - stringify - parse  option --- *\n\n' +
+        '  <h2>* -- Cloning objects with Circular references and RegExp properies\' values-- *</h2>\n\n' +
+        'What could be seen from the above explanations the unCycle handler\n' +
+        'could be used to get clones of an object having properties with\n' +
+        'values being Circular references and Regular Expressions\n\n' +
+        '      <code>clone = h.postParse( JSON.pars(JSON.stringify( h.preStringify(obj))));\n\n' +
+        '// or\n\n' +
+        '      clone = JSON.parse(JSON.stringify(obj, h.replacer), h.reviver);</code>\n\n' +
+        '     <h2>* --- RegExp JSON - stringify - parse  option --- *</h2>\n\n' +
         ' As you could already have noted the property re of testing object o\n' +
         ' is regular expression object and instead of this handler has worked\n' +
         ' it out successfully. Boolean property h.regStrOn is dedicated to switch\n' +
@@ -137,8 +147,16 @@ var readMeUncycle = function () {
         ' regStr module(package) has analogus logic and structure like uncycle.\n' +
         '\n' +
         ' For Details and algorithm of both packages see descriptions, comments\n' +
-        ' and codes. type npm run explain or require(\'./explain_uncycle\') \n' +
-        ' Best regards! Vladimir\n' +
+        'and codes./n' +
+        'click button "startTest" on test page or in browser developer console\n' +
+        'type the command:\n\n' +
+        '       <code>testUnCycle()</code>;\n\n' +
+        'It\'s possible to play with data inside browser console and debugger\n' +
+        'running the command:\n\n' +
+        '       <code> testBr();</code>' +
+        '\n\n' +
+        
+        ' <b><i>Best regards! Vladimir</i></b>\n' +
         '\n';
     console.log(txt);
     return txt;
