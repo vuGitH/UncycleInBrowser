@@ -1,5 +1,3 @@
-# unCycle module  ---- *
-
 # unCycle package example to use in browser 
 ## introduction 
  `unCycle` package provides functionality making `JSON` capable  
