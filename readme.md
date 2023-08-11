@@ -94,8 +94,10 @@ Why not:
 ```   
 
 ## tests 
- To varify this write yours or get test object and user functions samples
- for test object as follows:
+To run some test open browser' dev tool and run the following test commands  
+`testBr();` or `testUncycle();`.
+ To varify this manually write yours or get test object and user functions  
+ samples for test object as follows:
 ```JavaScript
   var o = h.getTestObj();
 ```
