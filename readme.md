@@ -94,8 +94,10 @@ Why not:
 ```   
 
 ## tests 
- To varify this write yours or get test object and user functions samples
- for test object as follows:
+To run some test open browser' dev tool and run the following test commands  
+`testBr();` or `testUncycle();`.
+ To varify this manually write yours or get test object and user functions  
+ samples for test object as follows:
 ```JavaScript
   var o = h.getTestObj();
 ```
@@ -177,6 +179,7 @@ Best regards! Vladimir
 
 ## unCycle usage in browser 
 
+[download or fork from here](https://github.com/vuGitH/UncycleInBrowser.git)  
 See example of handler invocation in file `./testPage.html`
 ```html
         <script type="text/javascript" src="uncycleInBro.js"></script>
