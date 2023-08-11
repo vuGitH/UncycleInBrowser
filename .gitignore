@@ -365,3 +365,4 @@ FodyWeavers.xsd
 # local version directory
 [1-9].*.*/
 inWork/
+zips/
