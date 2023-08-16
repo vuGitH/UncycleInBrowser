@@ -33,13 +33,13 @@ let ojoR = JSON.parse(oj,uc.reviverWork);
 
 
 console.log(
-    'ojoR.b[2].aa = %j\nojoR.prim.aa=%j',ojoR.b[2].aa, ojoR.prim.aa);
+    'ojoR.b[2].aa = ',ojoR.b[2].aa,'\nojoR.prim.aa = ', ojoR.prim.aa);
 // assign unCycle.reviverUser property value to external funcrion named reviver
 // stored in uncycleInBro.js as separate variable     
 uc.reviverUser = reviver;
 // The Usage of unCycle.reviver property after assigning uc.reviverUser
 let ojoRR = JSON.parse(oj,uc.reviver);
 console.log(
-    'ojoRR.b[2].aa = %j\nojoRR.prim.aa =%j',ojoRR.b[2].aa, ojoRR.prim.aa);
+    'ojoRR.b[2].aa = ',ojoRR.b[2].aa,'\nojoRR.prim.aa = ', ojoRR.prim.aa);
 console.log ('Test is close to finish');
 };
