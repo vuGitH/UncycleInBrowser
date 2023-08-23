@@ -54,8 +54,9 @@ var testUncycle = function () {
     '\n' +
     '			o.c.o1[1].push(1,o.c);\n' +
     '						\n';
-  txt[1] += '\nSo the object is now presented in node console:\n\n';
-  out(txt[it] + txt[it + 1]);
+  it++;
+  txt[1] = '\nSo the object is now presented in node console:\n\n';
+  out(txt[0] + txt[1]);
   console.log(o);
   
   it++; txt[2] = '' +
@@ -86,7 +87,7 @@ var testUncycle = function () {
 	' for further use uncycle could circularize our prestirngified object back\n' +
     'using method\n\n' +
     '           unCycle.circularize(o);\n' +
-    'Look, this is our original object after back "circularization" \no=';
+    'Look, this is our original object after back "circularization" \no = ';
   unCycle.circularize(o);
   out(txt[it]);
   console.log(o);
@@ -99,10 +100,10 @@ var testUncycle = function () {
   ojo = unCycle.postParse(ojo);
   console.log(ojo);
   it++; txt[6]='\n\nAll Circulars are at their original sites.\n\n' +
-    '/nNow let\'s consider another case of another test object \no=\n';
+    '/nNow let\'s consider another case of another test object \noO = \n';
   out(txt[it]);
 
-  o = {
+  var oO = {
     a: {},
     b: [0, {
       id: 'inarr',
@@ -115,25 +116,26 @@ var testUncycle = function () {
       im: 'obj'
     }
   };
-  o.a = o;
-  o.b[1].ob = o.b;
-  o.c.o1[1].push(1, o.c);
+  oO.a = oO;
+  oO.b[1].ob = oO.b;
+  oO.c.o1[1].push(1, oO.c);
 
-  console.log(o);
+  console.log(oO);
 
-  var oj = JSON.stringify(o, unCycle.replacer, 1);
-  it++; txt[6] = '' +
+  var oOj = JSON.stringify(oO, unCycle.replacer, 1);
+  it++; txt[it] = '' +
     '\nThe method unCycle.replacer provides replacer function which\n' +
-    'could be used as second parameter of JSON.stringify(o,replacer) method\n' +
+    'could be used as second parameter of JSON.stringify(oO,replacer) method\n' +
     'to serialize the circular object directly by means of JSON.stringify()\n\n' +
-    '           var oj=JSON.stringify(o,unCycle.replacer);\n\ngives json string \noj=\n';
+    '           var oj=JSON.stringify(oO,unCycle.replacer);\n\ngives json string \noOj=\n';
   out(txt[it]);
-  console.log(oj);
-  it++; txt[7] = '\nFor some future reasons we could leave object o in "circularized"\n' +
-    'form, using code:  unCycle.circularize(o,unCycle) =\n';
+  console.log(oOj);
+  it++; txt[it] = '\nFor some future reasons we could leave object oO in "circularized"\n' +
+    'form, using code: oOo = unCycle.circularize(oO)\n oOo =\n';
   out(txt[it]);
-  console.log(unCycle.circularize(o));
-  it++; txt[8] = '' +
+  var oOo = unCycle.circularize(oO);
+  console.log(oOo);
+  it++; txt[it] = '' +
     '\nWith mediation of unCycle handler json string oj \n' +
     'obtained after serialisation of object with circular references\n' +
     'could be parsed into object equivalent to original one \n' +
@@ -141,25 +143,20 @@ var testUncycle = function () {
     ' - using method unCycle.postParse(o1) after o1=JSON.parse(oj) or\n' +
     ' - using reviver function provided by method unCycle.reviver permiting parse oj\n' +
     'directly using JSON.parse with second parameter reviver \n\n' +
-    '          var o1 = JSON.parse(oj,reviver);\n' +
+    '          var o1 = JSON.parse(oOj,reviver);\n' +
     '\nwhere riviver function is obtained from equation reviver = unCycle.reviver .\n' +
-    'So, after parsing we get new object o1=\n';
+    'So, after parsing we get new object o1 = \n';
   out(txt[it]);
-  var o1 = JSON.parse(oj, unCycle.reviver);
+  var o1 = JSON.parse(oOj, unCycle.reviver);
   console.log(o1);
   
-  console.log('test ouput:\n%j',o1)
   console.log('\nOr each property separately:\n');
   for (var ip in o1) {
-    console.log('\n%j :', ip);
+    console.log('\n%s :', ip);
     console.log(o1[ip]);
-	console.log('\n%j : %j',ip,o1[ip]);
-	console.log('\n%s : %s',ip,o1[ip]);
-	console.log('\n%j :',ip,o1[ip]);
-	
-  }
+	}
   console.log('\nfully equivalent to original circular object.\n\nTest is finished,');
-  console.log('\nnow some explanations:\n');
+  console.log('\n\nnow some explanations:\n');
   console.log(t());
 
 };
