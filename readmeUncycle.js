@@ -31,14 +31,14 @@ var readMeUncycle = function () {
         ' If stringifying is not your final goal and you need o for further use\n' +
         ' we should remove fingerprints and leave everything asItWas ( circularize\n' +
         ' object again).\n\n' +
-        ' Method:  <code>h.circularize(o, h)</code> is presumed for that purpose, i.e. :\n' +
+        ' Method:  <code>h.circularize(o)</code> is presumed for that purpose, i.e. :\n' +
         '\n' +
         ' v.1\n' +
         '\n' +
         '      <code>h.preStringify(o);\n' +
         '      oj = JSON.stringify(o);\n' +
         '\n' +
-        '      h.circularize(o ,h );\n' +
+        '      h.circularize(o);\n' +
         '\n' +
         '      ojo = JSON.parse(oj);\n' +
         '      h.postParse(ojo);</code>\n' +
@@ -46,7 +46,7 @@ var readMeUncycle = function () {
         ' v.2\n' +
         '\n' +
         '      <code>oj = JSON.stringify(o,h.replacer);\n' +
-        '      h.circularize(o,h);              // if any\n' +
+        '      h.circularize(o);              // if any\n' +
         '      ojo = JSON.parse(oj,h.reviver);</code>\n' +
         '\n' +
         ' <h3>Remark 2:</h3>\n' +
@@ -102,7 +102,7 @@ var readMeUncycle = function () {
         '\n' +
         ' //and analyse\n\n' +
         ' oj = JSON.stringify(o, h.replacer);\n' +
-        ' h.circularize(o, h); \n' +
+        ' h.circularize(o); \n' +
         ' ojo = JSON.parse(oj, h.reviver);</code>\n' +
         '\n' +
         ' Differences between these two objects are appropriate to modifications\n' +
@@ -125,7 +125,7 @@ var readMeUncycle = function () {
         '\n' +
         ' the same result with circularize step:\n\n' +
         '      <code>oj = JSON.stringify( oIn, h.replacer);\n' +
-        '      h.circularize( oIn , h );\n' +
+        '      h.circularize( oIn );\n' +
         '      oOut = JSON.pars( oj, h.reviver );</code>\n' +
         '\n' +
         '\n' +

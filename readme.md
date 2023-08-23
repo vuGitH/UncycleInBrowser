@@ -42,14 +42,14 @@ see simple html page file `./testPage.html`
  we should remove fingerprints and leave everything _asItWas_ ( circularize
  object again).
 
- Method:  __`h.circularize(o, h)`__ is presumed for that purpose, i.e. :
+ Method:  __`h.circularize(o)`__ is presumed for that purpose, i.e. :
 
  **v.1**
 ```JavaScript
       h.preStringify(o);
       oj=JSON.stringify(o);
 
-      h.circularize(o ,h );
+      h.circularize(o);
 
       ojo=JSON.parse(oj);
       h.postParse(ojo);
@@ -130,7 +130,7 @@ To run some test open browser' dev tool and run the following test commands
  and analyse
 ```JavaScript
  oj = JSON.stringify(o, h.replacer);
- h.circularize(o, h);
+ h.circularize(o);
  ojo=JSON.parse(oj, h.reviver);
 ```
  Differences between these two objects are appropriate to modifications
@@ -155,7 +155,7 @@ To run some test open browser' dev tool and run the following test commands
  the same result with circularize step:
 ```JavaScript
       oj = JSON.stringify( oIn, h.replacer);
-      h.circularize( oIn , h );
+      h.circularize( oIn );
       oOut = JSON.pars( oj, h.reviver );
 
 ```
@@ -365,7 +365,7 @@ o=
 As you can see there are no any `Circulars` in it.
 
 Nevertheless when it is necessary handler could circularize it back
-using method `unCycle.circularize(o,unCycle);`
+using method `unCycle.circularize(o);`
 
 Look, this is our original object after back "circularization"
 ```
@@ -492,7 +492,7 @@ oj='
 '
 ```
 For some future reasons we could leave object `o` in "circularized"  
-form, using code:  `unCycle.circularize(o,unCycle) =`
+form, using code:  `unCycle.circularize(o) =`
 
 ```
 { a: [Circular],
