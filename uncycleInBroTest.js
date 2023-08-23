@@ -65,6 +65,16 @@ var testUncycle = function () {
   //unCycle.uiDirect.resetData();
   //unCycle.fillDirectory(o);
   unCycle.preStringify(o);
+  /* Further calculation will change the o object properties values.
+   * what will change the console output( appropriate to this particular
+   * moment of calculation) after test run termination.
+   * To keep current values unchanged in console the independent clone
+  * clone of actual o object state is created (using the functionality 
+  * of unCycle handler) and print into
+  * browser by console.log(oFreez) =  actual values of o object properties
+
+  */
+  var oFreez = JSON.parse(JSON.stringify(o));
   it++; txt[3] =
     '\nThe handler method\n\n' +
     '            unCycle.preStringify(o);\n\n' +
@@ -73,7 +83,7 @@ var testUncycle = function () {
     'their uid-s (universal identifyers, details are explained in description).\n\n' +
     'Actually, after such transformation the object o is look like this:\n\no =\n';
   out(txt[it]);
-  console.log(o);
+  console.log(oFreez);
   it++; txt[4]='\n\nAs you can see there are no any Circulars in it\n' +
   'and therefore there are no obstacles to stringify it by' +
   'var oj = JSON.stringify(o);\n\n' +
@@ -127,7 +137,7 @@ var testUncycle = function () {
     '\nThe method unCycle.replacer provides replacer function which\n' +
     'could be used as second parameter of JSON.stringify(oO,replacer) method\n' +
     'to serialize the circular object directly by means of JSON.stringify()\n\n' +
-    '           var oj=JSON.stringify(oO,unCycle.replacer);\n\ngives json string \noOj=\n';
+    '           var oOj=JSON.stringify(oO,unCycle.replacer);\n\ngives json string \noOj=\n';
   out(txt[it]);
   console.log(oOj);
   it++; txt[it] = '\nFor some future reasons we could leave object oO in "circularized"\n' +
@@ -155,8 +165,8 @@ var testUncycle = function () {
     console.log('\n%s :', ip);
     console.log(o1[ip]);
 	}
-  console.log('\nfully equivalent to original circular object.\n\nTest is finished,');
-  console.log('\n\nnow some explanations:\n');
+  console.log('\nfully equivalent to original circular object.\n\nTest is finished.\n\n');
+  console.log('\n\nNow some explanations (Long Read):\n');
   console.log(t());
 
 };
