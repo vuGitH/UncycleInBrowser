@@ -147,7 +147,7 @@ var unCycle=
        * @param {Val} pO - parent object o=pO[oId]
        * @return {Uid} universal identifier for o
        * Explanation and parameters' propperties see
-       * in addTrio and uidsVsVal
+       * in addTrio and fillDirectory
        */
       triO: function (o, pUid, oId, pO) {
         var oUid;
@@ -310,15 +310,13 @@ var unCycle=
        *   result of reverse json conversion
        *   o->oj->ojo o -> json.stringify -> json.parse
        * @return {Val} uid's entity value reference(address)
-       *   link , reference addres of uid entity object (i.e. value address)
+       *   link , reference address of uid entity object (i.e. value address)
        */
       refer: function (uid, ojo) {
         var uils = uid.split('#').slice(1); // uids for levels
-        var oRef = ojo,
-            uil,
-            prefx = (ojo.id)? ojo.id : ((ojo.im)? ojo.im : '');
-        if (uils[0] === prefx) { return oRef; }
-        for (var il = 0; il < uils.length; il++) {
+        var oRef = ojo, uil;
+        if (uils[0] === '' && uils.length === 1) { return oRef;}
+        for (var il = 1; il < uils.length; il++) {
           uil = uils[il];
           oRef = this.oRefer(oRef, uil); // oRef is overassigned each step          
           // so deep penetration into ojo is carried out
@@ -329,16 +327,13 @@ var unCycle=
        * recursive adder of index appropriate uil and il
        * oRef at input  is top level entity reference,
        * output is next level deep top reference entity
-       * @param {SerializableO} ojo
        * @param {SerializableO|Hampered} oRef 
        * @param {UidPart} uil part of uid appropriate to level il literally
        *     the name of a property
-       * @param {number} il level index. Level describes the subproperty
-       *     inclosure order
        * @return {SerializableO|Val} element or property serializable reference
        *     (address) to value 
        */
-      oRefer: function ( oRef, uil) {
+      oRefer: function (oRef, uil) {
        if (/^[0-9]+$/.test(uil)) {
           return oRef[parseInt(uil, 10)];
         } else if (/^\w+/.test(uil)) {
@@ -348,142 +343,102 @@ var unCycle=
         }
       },
       /**
-       * refDAO sub-method to handle Arrays (see refDarner)
+              * sub-method to handle Arrays (see refDarner)
        * @param {Uid} uid uid value
        * @param {Reference| Val} oRef - structural reference 
        *     value substituting  "patch"
-       * @param {Array} ojo Array
        * @param {number} iv actual index of vals element 
        *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
-       * @param {number} ip subproperty index 
        * @return{void}
        */
-      rDA: function(uid, oRef, ojo, vals, ...opt){
-        let [iv,ip] = opt;
-        let [valRef,vls,ix] = (opt.length === 1) ?
-        [vals[iv], vals, iv] : [vals[iv][ip], vals[iv], ip];      
+      rDA: function(uid, oRef, iv){
+        let valRef = this.uiDirect.vals[iv];      
         if (this.isAr(valRef)) {
-          // val is array
           for (i = 0; i < valRef.length; i++) {
-            if (!this.isAr(valRef[i]) || !this.isOb(valRef[i])) {
-              if (valRef[i] === uid) {
-                vls[ix][i] = oRef; 
-              }
-            } else {
-              this.rDAO(uid, oRef, ojo, vls, ix, i);
+            if (valRef[i] === uid) {
+              valRef[i] = oRef; 
             }
           }
         }
       },
       /**
-      * refDAO sub-method to handle Objects (see refDarner)
-      * @param {Uid} uid uid value
-      * @param {Reference| Val} oRef - structural reference 
-      *     value substituting  "patch"
-      * @param {Array} ojo Array
-      * @param {number} iv actual index of vals element 
-      *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
-      * @param {number} ip subproperty index 
-      * @return{void}
-      */      
-      rDO: function(uid,oRef,ojo,vals,...opt){
-        let [iv,ip] = opt;
-        let [valRef, vls, ix] = (opt.length === 1) ?
-        [vals[iv], vals, iv] : [vals[iv][ip], vals[iv], ip];
+       * sub-method to handle Objects (see refDarner)
+       * @param {Uid} uid uid value
+       * @param {Reference| Val} oRef - structural reference 
+       *     value substituting  "patch"
+       * @param {number} iv actual index of vals element 
+       *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
+       * @return{void}
+       */      
+      rDO: function(uid,oRef,iv){
+        let valRef = this.uiDirect.vals[iv];
         if (this.isOb(valRef)) {
-        // val is object
-        for (var i in valRef) {
-          if (!this.isAr(valRef[i]) || !this.isOb(valRef[i])) {
+          for (var i in valRef) {
             if (valRef[i] === uid && i !== 'uid') {
-              vls[ix][i] = oRef;
+              valRef[i] = oRef;
             }
             if (i === 'uid' && !this.uiDirect.showUids) {
               // -- no uids
               if (this.uiDirect.uidsUndefined === true ||
                 this.uiDirect.noDelete === true) {
                   valRef[i] = undefined;
-                } else {
-                  delete valRef[i];
-                }
+              } else {
+                delete valRef[i];
               }
-            } else {
-              this.rDAO(uid, oRef, ojo, vls, ix, i);
             }
           }
         }
       },
       /**
-      * refDarner sub-method to handle Objects (see refDarner)
-      * @param {Uid} uid uid value
-      * @param {Reference| Val} oRef - structural reference 
-      *     value substituting  "patch"
-      * @param {Array} ojo Array
-      * @param {number} iv actual index of vals element 
-      *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
-      * @param {number} ip subproperty index 
-      * @return{void}
-      */ 
-      rDAO: function(uid,oRef,ojo,vals,...opt){
-        if( opt.length === 1){
-          this.rDA(uid,oRef,ojo,vals,opt[0]);
-          this.rDO(uid,oRef,ojo,vals,opt[0]);
-        } else {
-          this.rDA(uid,oRef,ojo,vals,opt[0],opt[1]);
-          this.rDO(uid,oRef,ojo,vals,opt[0],opt[1]);
-        }
+       * UnCycle#rDAO sub-method to handle Objects and Arrays (see refDarner)
+       * @param {Uid} uid uid value
+       * @param {Reference| Val} oRef - structural reference 
+       *     value substituting  "patch"
+       * @param {number} iv actual index of vals element 
+       *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
+       * @return{void}
+       */ 
+      rDAO: function(uid,oRef,iv){
+        this.rDA(uid,oRef,iv);
+        this.rDO(uid,oRef,iv);      
       },
       /**
-       * browses through ojo object's properties and subproperties
-       * to replace patches by reference from array vals
+       * UnCycle#refDarner browses through ojo object's properties and
+       * subproperties to replace patches by reference from array vals
        * ( unCycle.uiDirect.vals) if any
        * @param {Uid} uid uid value
        * @param {Reference| Val} oRef - structural reference to the memory
        *     location of entity specified by uid. Obtained recursively
        *     reproducting internal hierarchical structure of object 
-       *     indicated in object property literal link. That reference 
+       *     indicated in object property literal link. this reference 
        *     is used to assign or to get value for substitution of string
        *     "patch"
-       * @param {SerializableO} ojo object in proccessing
-       * @param {Vals } vals array of substitution
-       *     objects. Here the whole array is used as a parameter but not the
-       *     element approptiate to uid in
-       *     <uids> vs <vals> pairs.  val appropriating to uid is val=vals[iv]
-       *     Such form permits passing any changes of elements outside
-       *     of method function. Change of vals provides of appropriate change
-       *     of ojo object
        * @param {number} iv actual index of vals element 
        *   val = uiDirect.vals[iv] uid=uiDirect.uids[iv]
-       * @param {number} ip subproperty index 
        * @return{void}
        */
-      refDarner: function (uid, oRef, ojo, vals, ...opt) { 
-        let [iv,ip] = opt;
+      refDarner: function (uid, oRef, iv) { 
         if (iv === undefined) { throw 'iv should be set obligatorily';}        
-        if (ip === undefined) {
-          this.rDAO(uid,oRef,ojo,vals,opt[0]);
-        } else {
-          this.rDAO(uid,oRef,ojo,vals,opt[0],opt[1])
-        }
-      },
+        this.rDAO(uid,oRef,iv);
+      }, 
       /**
        * circularize
        * searches for and darns (replaces) uid-like string patches
        * @param {!SerializableO} ojo object possibly parsed after serialization
-       * @param {!Object} h unCycle object
        * @return {SourceO|Hampered}
        */
-      circularize: function (ojo, h) {
+      circularize: function (ojo) {
         if (this.regStrOn) {
           // var r = require('regstr').regStr;
-          var r = regStr; // regStr is global
+          var r = (typeof RegStr == 'object') ? new RegStr() : require('regstr').regStr; // regStr is global
           r.reger(ojo);
         }
         var uid, oRef;
-        for (var iu = 0; iu < h.uiDirect.uids.length; iu++) {
-          uid = h.uiDirect.uids[iu];
+        for (var iu = this.uiDirect.uids.length -1; iu > -1 ; iu--) {
+          uid = this.uiDirect.uids[iu];
           oRef = this.refer(uid, ojo);
-          for (var iv = 0; iv < h.uiDirect.vals.length; iv++) {
-            this.refDarner(uid, oRef, ojo, h.uiDirect.vals, iv);
+          for (var iv = 0; iv < this.uiDirect.vals.length; iv++) {
+            this.refDarner(uid, oRef, iv);
           }
         }
         return ojo;
@@ -590,8 +545,8 @@ var unCycle=
        * @returns {string}
        */
       replacer: function (key, value) {
-        var uc = unCycle;        
-        var replacerSet;
+        var uc = unCycle;
+
         if (key === '' || key === undefined || !key && (key !== 0)) {
           uc.preStringify(value);
         } else {
@@ -649,7 +604,7 @@ var unCycle=
       afterParse: function (ojo) {
         this.uiDirect.resetData();
         this.fillDirectory(ojo);
-        this.circularize(ojo, this);
+        this.circularize(ojo);
         return ojo;
       },
       /**
@@ -669,7 +624,7 @@ var unCycle=
         this.uiDirect.resetData();
         this.fillDirectory(ojo);
         this.changeOjoVals(ojo, this.kvn);
-        this.circularize(ojo, this);
+        this.circularize(ojo);
         return ojo;
       },
       /**
