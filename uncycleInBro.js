@@ -548,13 +548,13 @@ var unCycle=
        */
       replacer: function (key, value) {
         var uc = unCycle;
-
         if (key === '' || key === undefined || !key && (key !== 0)) {
           uc.preStringify(value);
         } else {
-          if( uc.jsonArg2("replacer",uc) === 'user'){
+          var mode = uc.jsonArg2("replacer", uc);
+          if(mode === 'user'){
             return uc.replacerUser(key, value);
-          }else if(uc.jsonArg2('replacer',uc) === 'local'){
+          }else if(mode === 'local'){
             return replacer(key, value);
           }
         }
@@ -661,7 +661,6 @@ var unCycle=
           }
           if (reviverSet) {
             if (uc.isOb(value) || uc.isAr(value)) {
-              // return uc.filter(key,value,reviver);
               return uc.filter(key, value, reviver);
             } else {
               return reviver(key, value);
@@ -675,13 +674,14 @@ var unCycle=
         if (key === '' || key === undefined || !key && (key !== 0)) {
           uc.postParse(value);
         } else {
-          if( uc.jsonArg2("reviver",uc) === 'user'){
+          var  mode = uc.jsonArg2("reviver",uc);
+          if(  mode === 'user'){
             if (uc.isOb(value) || uc.isAr(value)) {
               return uc.filter(key, value, uc.reviverUser);
             } else {
               return uc.reviverUser(key, value);
             }
-          }else if(uc.jsonArg2('reviver',uc) === 'local'){
+          }else if(mode === 'local'){
             if (uc.isOb(value) || uc.isAr(value)) {
               return uc.filter(key, value, reviver);
             } else {
