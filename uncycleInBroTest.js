@@ -10,15 +10,16 @@ var testUncycle = function () {
   var testDesclaimer = '' +
     '\n\n   * ---- Test of unCycle module ---- *\n' +
     ' unCycle is a handler who supplies methods\n\n' +
-    '1.  to cipher and decipher objects and arrays with circular references and RegExp\n' +
-    'properties enabling JSON object to stringify and parse them back and/or\n' +
+    '1.  enabling JSON object to stringify and parse back the objects and arrays with circular references and RegExp\n' +
+    'properties  and/or\n' +
     '\n' +
     '2. Provides replacer and reviver functions\n' +
     '(second parameter of JSON.stringify() and JSON.parse() method)\n' +
     'to stringify and parse objects and/or arrays with circular references and RegExp\n' +
     'properties.\n\n' +
-    'Handler could be loaded locally from working directory by the command: \n\n' +
-    '           var unCycle=require(\'./uncycle\').handler;\n';
+	  '3. what as a result permits to make clones of objects or arrays mentioned above.\n' +
+    'Handler could be evoked locally by the global var unCycle \n\n'; 
+
   out(testDesclaimer);
   var txt = [], it = 0;
   var o = {
@@ -45,7 +46,7 @@ var testUncycle = function () {
     '				c: {o: {}, o1: [0,[],2], o3: \'o3\', im: \'obj\'}\n' +
     '			};\n' +
     '\n' +
-    'and add few internal circular referrences into it:\n' +
+    'and add few internal circular references into it:\n' +
     '\n' +
     '			o.a=o;\n' +
     '\n' +
@@ -60,29 +61,43 @@ var testUncycle = function () {
   it++; txt[2] = '' +
     '\n\nPay attention to \'Circular\' mark indicating presence of circular references\n';
   out(txt[it]);
-  unCycle.uiDirect.resetData();
-  unCycle.fillDirectory(o);
+  //unCycle.uiDirect.resetData();
+  //unCycle.fillDirectory(o);
+  unCycle.preStringify(o);
   it++; txt[3] =
     '\nThe handler method\n\n' +
     '            unCycle.preStringify(o);\n\n' +
     'transformes original object into the form where values\n' +
     'of properties being circular references are exchanged by string values of\n' +
     'their uid-s (universal identifyers, details are explained in description).\n\n' +
-    'Actually, after such transformation the object o is look like this:\n\no=\n';
+    'Actually, after such transformation the object o is look like this:\n\no =\n';
   out(txt[it]);
   console.log(o);
   it++; txt[4]='\n\nAs you can see there are no any Circulars in it\n' +
-    'and therefore there are no obstacles to stringify it by JSON.stringify(o);\n' +
-  
-    '\n\nNevertheless when it is necessary handler could circularize our object back\n' +
-    'using method\n\n' +
-    '           unCycle.circularize(o,unCycle);\n\n';
+  'and therefore there are no obstacles to stringify it by' +
+  'var oj = JSON.stringify(o);\n\n' +
+  'where oj is json string:\n';
   console.log(txt[it]);
-  unCycle.circularize(o, unCycle);
+  var oj = JSON.stringify(o);  
+  console.log(oj);
 
-  it++; txt[5] ='Look, this is our original object after back "circularization" \no=';
+  it++; txt[5] =
+    '\n\nWhenever necessary to get back circular form of original object immediately' + 
+	' for further use uncycle could circularize our prestirngified object back\n' +
+    'using method\n\n' +
+    '           unCycle.circularize(o);\n' +
+    'Look, this is our original object after back "circularization" \no=';
+  unCycle.circularize(o);
   out(txt[it]);
   console.log(o);
+  console.log('\n\nTo evoke object from json string got in serialization\n'+
+  'use the following commands:\n\n' +
+  '    var ojo = JSON.parse(oj);\n' +
+  '    ojo = unCycle.postParse(ojo);\n\n ' +
+  'finally ojo =');
+  var ojo = JSON.parse(oj);
+  ojo = unCycle.postParse(ojo);
+  console.log(ojo);
   it++; txt[6]='\n\nAll Circulars are at their original sites.\n\n' +
     '/nNow let\'s consider another case of another test object \no=\n';
   out(txt[it]);
@@ -117,7 +132,7 @@ var testUncycle = function () {
   it++; txt[7] = '\nFor some future reasons we could leave object o in "circularized"\n' +
     'form, using code:  unCycle.circularize(o,unCycle) =\n';
   out(txt[it]);
-  console.log(unCycle.circularize(o, unCycle));
+  console.log(unCycle.circularize(o));
   it++; txt[8] = '' +
     '\nWith mediation of unCycle handler json string oj \n' +
     'obtained after serialisation of object with circular references\n' +
