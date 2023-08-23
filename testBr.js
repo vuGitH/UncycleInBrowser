@@ -1,5 +1,4 @@
 let testBr = function(){
-var AAA = "AAA";
 var uc = unCycle;
 // get test object with Circular references
 let ot = uc.getTestObj();
@@ -7,15 +6,17 @@ let ot_pre = uc.preStringify(ot);
 let otj = JSON.stringify(ot_pre);
 let otj_p = JSON.parse(otj);
 let otj_post = uc.postParse(otj_p);
-console.log('step 1 standard work flow has finished');
+otj_post.afterTestStep1 = 'step 1 standard work flow has finished';
+console.log(otj_post.afterTestStep1);
 
 // test replacer block
 let ot1 = uc.getTestObj();
 //let ot1_pre = uc.preStringify(ot);
 let otj1 = JSON.stringify(ot1,uc.replacer);
 let otj1_post = JSON.parse(otj1,uc.reviver);
+otj1_post.afterTestStep2 = 'step 2 standard work flow has finished'
 //let otj1_post = uc.postParse(otj_p);
-console.log('step 2 standard work flow has finished');
+console.log(otj1_post.afterTestStep2);
 
 // already parsed test patched object ojo
 /** @type {SerializableO} */
@@ -23,12 +24,9 @@ let ojo = ojoTest();
 let oj = JSON.stringify(ojo);
 let ojoPP = uc.postParse(ojo);
 // standard use of JSON.parse with second parameter
-// reviver function. Here uc.reveverWork is used as 
+// reviver function. Here uc.reviverWork is used as 
 // external function
 let ojoR = JSON.parse(oj,uc.reviverWork);
-
-
-
 
 
 
