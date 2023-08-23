@@ -430,7 +430,9 @@ var unCycle=
       circularize: function (ojo) {
         if (this.regStrOn) {
           // var r = require('regstr').regStr;
-          var r = (typeof RegStr == 'object') ? new RegStr() : require('regstr').regStr; // regStr is global
+		  // regStr is global
+          var r = (typeof RegStr == 'object') ? new RegStr() :
+		      ((typeof regStr == 'object') ? regStr : require('regstr').regStr);
           r.reger(ojo);
         }
         var uid, oRef;
