@@ -10,14 +10,13 @@ var testUncycle = function () {
   var testDesclaimer = '' +
     '\n\n   * ---- Test of unCycle module ---- *\n' +
     ' unCycle is a handler who supplies methods\n\n' +
-    '1.  enabling JSON object to stringify and parse back the objects and arrays with circular references and RegExp\n' +
-    'properties  and/or\n' +
-    '\n' +
+    '1.  enabling JSON object to stringify and parse back the objects\n' + 
+    'and arrays with circular references and RegExp properties  and/or\n\n' +
     '2. Provides replacer and reviver functions\n' +
     '(second parameter of JSON.stringify() and JSON.parse() method)\n' +
     'to stringify and parse objects and/or arrays with circular references and RegExp\n' +
     'properties.\n\n' +
-	  '3. what as a result permits to make clones of objects or arrays mentioned above.\n' +
+	  '3. as a result it permits to make clones of objects or arrays mentioned above as well.\n' +
     'Handler could be evoked locally by the global var unCycle \n\n'; 
 
   out(testDesclaimer);
@@ -62,6 +61,14 @@ var testUncycle = function () {
   it++; txt[2] = '' +
     '\n\nPay attention to \'Circular\' mark indicating presence of circular references\n';
   out(txt[it]);
+  it++; txt[3] =
+    '\nThe handler method\n\n' +
+    '            unCycle.preStringify(o);\n\n' +
+    'transformes original object into the form where values\n' +
+    'of properties being circular references are exchanged by string values of\n' +
+    'their uid-s (universal identifyers, details are explained in description).\n\n' +
+    'Actually, after such transformation the object o is look like this:\n\no =\n';
+  out(txt[it]);
   //unCycle.uiDirect.resetData();
   //unCycle.fillDirectory(o);
   unCycle.preStringify(o);
@@ -75,15 +82,8 @@ var testUncycle = function () {
 
   */
   var oFreez = JSON.parse(JSON.stringify(o));
-  it++; txt[3] =
-    '\nThe handler method\n\n' +
-    '            unCycle.preStringify(o);\n\n' +
-    'transformes original object into the form where values\n' +
-    'of properties being circular references are exchanged by string values of\n' +
-    'their uid-s (universal identifyers, details are explained in description).\n\n' +
-    'Actually, after such transformation the object o is look like this:\n\no =\n';
-  out(txt[it]);
   console.log(oFreez);
+
   it++; txt[4]='\n\nAs you can see there are no any Circulars in it\n' +
   'and therefore there are no obstacles to stringify it by' +
   'var oj = JSON.stringify(o);\n\n' +
@@ -93,9 +93,9 @@ var testUncycle = function () {
   console.log(oj);
 
   it++; txt[5] =
-    '\n\nWhenever necessary to get back circular form of original object immediately' + 
-	' for further use uncycle could circularize our prestirngified object back\n' +
-    'using method\n\n' +
+    '\n\nWhenever necessary to get back circular form of original object\n' + 
+    'immediately (e.g. for some further use) uncycle could circularize our\n' +
+    'prestirngified object back using method\n\n' +    
     '           unCycle.circularize(o);\n' +
     'Look, this is our original object after back "circularization" \no = ';
   unCycle.circularize(o);
@@ -109,6 +109,7 @@ var testUncycle = function () {
   var ojo = JSON.parse(oj);
   ojo = unCycle.postParse(ojo);
   console.log(ojo);
+
   it++; txt[6]='\n\nAll Circulars are at their original sites.\n\n' +
     '/nNow let\'s consider another case of another test object \noO = \n';
   out(txt[it]);
@@ -137,24 +138,29 @@ var testUncycle = function () {
     '\nThe method unCycle.replacer provides replacer function which\n' +
     'could be used as second parameter of JSON.stringify(oO,replacer) method\n' +
     'to serialize the circular object directly by means of JSON.stringify()\n\n' +
-    '           var oOj=JSON.stringify(oO,unCycle.replacer);\n\ngives json string \noOj=\n';
+    '     var oOj = JSON.stringify(oO,unCycle.replacer);\n\n' +
+    'who gives json string \noOj=\n';
   out(txt[it]);
   console.log(oOj);
+
   it++; txt[it] = '\nFor some future reasons we could leave object oO in "circularized"\n' +
-    'form, using code: oOo = unCycle.circularize(oO)\n oOo =\n';
+    'form again, using code: oOo = unCycle.circularize(oO)\n oOo =\n';
   out(txt[it]);
   var oOo = unCycle.circularize(oO);
   console.log(oOo);
+
   it++; txt[it] = '' +
-    '\nWith mediation of unCycle handler json string oj \n' +
+    '\nWith mediation of unCycle handler json string oOj \n' +
     'obtained after serialisation of object with circular references\n' +
     'could be parsed into object equivalent to original one \n' +
     'similarly in two optional ways:\n' +
-    ' - using method unCycle.postParse(o1) after o1=JSON.parse(oj) or\n' +
-    ' - using reviver function provided by method unCycle.reviver permiting parse oj\n' +
-    'directly using JSON.parse with second parameter reviver \n\n' +
-    '          var o1 = JSON.parse(oOj,reviver);\n' +
-    '\nwhere riviver function is obtained from equation reviver = unCycle.reviver .\n' +
+    ' - using method unCycle.postParse(o1) after o1 = JSON.parse(oOj) or\n' +
+    ' - using reviver function provided by the property unCycle.reviver\n' +
+    'permiting parse oOj directly using JSON.parse with second paramete\n' +
+    'reviver \n\n' +
+    '         var o1 = JSON.parse(oOj,reviver);\n' +
+    '\nwhere `riviver` function is obtained from equation\n' +
+    '         reviver = unCycle.reviver \n' +
     'So, after parsing we get new object o1 = \n';
   out(txt[it]);
   var o1 = JSON.parse(oOj, unCycle.reviver);
