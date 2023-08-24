@@ -7,11 +7,49 @@
  */
 let startTest = () => {
     let demo = document.getElementById('demo');
+    let b =document.getElementById('goTest');
+    let bN =  document.getElementById('nextTest');
+
     let t = readMeUncycle;
     let text = t();
     let html = text.replace(/\n/g,"<br>");
     demo.innerHTML = html;
-    testUncycle();
+
+    function f1(e){
+            alert('Press F12 to see browser console output');
+            testUncycle();
+            if( bN.value === "Run testUncycle"){
+                bN.value = "Run testBr";
+                bN.addEventListener('click',f2 );
+            }
+            bN.removeEventListener('click',f1);
+    }
+    function f2(e){
+      if(e.target.value === 'Run testBr'){
+        e.target.value = "Stop" ;
+        testBr();
+      } else {
+        if(confirm('You are going to close this window. Press Ok or Cancel.')){
+           window.close();
+        }
+      }        
+    }
+
+    
+    let demo2;
+    b.setAttribute('style','display:none');
+    bN.setAttribute('style','visibility:visible');
+    if( b.value === 'Start test' ){
+        demo2 = document.createElement("DIV");
+        demo2.id = "demo2";
+        demo2.innerHTML = 
+            "<b>Press F12 button on keyboard to see Browser Console output</b><br>" +
+            "Then press 'Run testUncycle' button to run testUncycle()<br><br>";
+        document.body.appendChild(demo2);    
+        demo2.appendChild(bN);
+        bN.value = "Run testUncycle";        
+        bN.addEventListener('click',f1 );
+    }
 }
 /**
  * reconstructs subproperty's literal using all levels properties names 
