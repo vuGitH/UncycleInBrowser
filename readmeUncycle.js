@@ -2,13 +2,13 @@ var readMeUncycle = function () {
     let txt = 
         '\n' +
         '      <h2>* ----  unCycle package example to use in browser  ---- *</h2>\n' +
-        ' unCycle package provides capabilities making JSON capable \n' +
+        ' unCycle package provides capabilities for JSON \n' +
         ' to stringify and parse objects with circular references and\n' +
         ' having RegExp objects as  properties. \n' +
-        ' While having been loaded in a page by means of <script> tag:\n' +
-        ' e.g.\n\n ' +
-        '<script type="text/javascript" src="uncycleInBro.js"></script>\n' +
-        '( see simple html page in file testPage.html\n\n' +
+        ' While having been loaded in a page by means of &lt;script&gt; tag:\n' +
+        ' e.g.\n' +
+        '&ltscript type="text/javascript" src="uncycleInBro.js"&gt;&lt;/script&gt;\n' +
+        '(see simple html page in file testPage.html )\n\n' +
 
         '     <code> h = unCycle;</code>\n' +
         '\n' +
@@ -130,12 +130,12 @@ var readMeUncycle = function () {
         '\n' +
         '\n' +
         '  <h2>* -- Cloning objects with Circular references and RegExp properies\' values-- *</h2>\n\n' +
-        'What could be seen from the above explanations the unCycle handler\n' +
+        'What could be seen from the explanations above the unCycle handler\n' +
         'could be used to get clones of an object having properties with\n' +
         'values being Circular references and Regular Expressions\n\n' +
         '      <code>clone = h.postParse( JSON.pars(JSON.stringify( h.preStringify(obj))));\n\n' +
         '// or\n\n' +
-        '      clone = JSON.parse(JSON.stringify(obj, h.replacer), h.reviver);</code>\n\n' +
+        '      clone1 = JSON.parse(JSON.stringify(obj, h.replacer), h.reviver);</code>\n\n' +
         '     <h2>* --- RegExp JSON - stringify - parse  option --- *</h2>\n\n' +
         ' As you could already have noted the property re of testing object o\n' +
         ' is regular expression object and instead of this handler has worked\n' +
@@ -145,9 +145,11 @@ var readMeUncycle = function () {
         ' To switch off set it to false,\n' +
         ' typical JSON behavior regarding RegExp will take place after that.\n' +
         ' regStr module(package) has analogus logic and structure like uncycle.\n' +
-        '\n' +
+        'It should be preloaded appropriatly as &lt;script..&gt; library, e.g.\n' +
+        '&ltscript type="text/javascript" src="regstrInBrowser.js"&gt;&lt;/script&gt;\n' +
+        '(see sample html file testPage.html )\n\n' +
         ' For Details and algorithm of both packages see descriptions, comments\n' +
-        'and codes./n' +
+        'and codes.\n' +
         'click button "startTest" on test page or in browser developer console\n' +
         'type the command:\n\n' +
         '       <code>testUnCycle()</code>;\n\n' +
