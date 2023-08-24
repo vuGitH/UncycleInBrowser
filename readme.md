@@ -19,7 +19,7 @@ see simple html page file `./testPage.html`
  
  In actual package sample the handler could be invoked by :
 ```
-      h = unCyle;
+      h = unCycle;
 ```
 ### variant of use 1:
 ```JavaScript
