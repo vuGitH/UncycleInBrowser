@@ -791,7 +791,7 @@ let regStr =  (function () {
       },
       /**
        * replacer to use as seconde parameter of
-       * JSON.stringify(o,h.replacer) to stringify
+       * JSON.stringify(o,h.replacer.bind(h)) to stringify
        * objects with circular references
        * parameters key and value is set by definition of JSON.stringify(...)
        */
@@ -803,9 +803,9 @@ let regStr =  (function () {
       },
       /**
        * reviver function to use as second parameter of
-       * JSON.parse(o1,h.reviver) to parse
+       * JSON.parse(o1,h.reviver.bind(h)) to parse
        * json string o1 resulted from
-       * JSON.stringify(o,h.replacer)
+       * JSON.stringify(o,h.replacer.bind(h))
        * parameters key and value are set in accordance with definitions
        * of JSON.parse(...). Is used for RegExp as properties of object
        * or elements of an array
