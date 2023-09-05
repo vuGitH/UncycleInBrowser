@@ -33,8 +33,8 @@ see simple html page file `./testPage.html`
 
 ### variant 2:
 ```JavaScript
-      oj  = JSON.stringify( o, h.replacer );
-      ojo = JSON.parse    ( oj, h.reviver );
+      oj  = JSON.stringify( o, h.replacer.bind(h) );
+      ojo = JSON.parse    ( oj, h.reviver.bind(h) );
 ```
 #### Remark 1:
  Processing of original object `o` makes some changes in it.
@@ -47,18 +47,18 @@ see simple html page file `./testPage.html`
  **v.1**
 ```JavaScript
       h.preStringify(o);
-      oj=JSON.stringify(o);
+      oj = JSON.stringify(o);
 
       h.circularize(o);
 
-      ojo=JSON.parse(oj);
+      ojo = JSON.parse(oj);
       h.postParse(ojo);
 ```
  **v.2**
 ```JavaScript
-      oj=JSON.stringify(o,h.replacer);
-      h.circularize(o,h);              // if any
-      ojo=JSON.parse(oj,h.reviver);
+      oj = JSON.stringify(o, h.replacer.bind(h));
+      h.circularize(o);              // if any
+      ojo = JSON.parse(oj, h.reviver.bind(h));
 ```
 #### Remark 2:
  __Variant 2__ paraphrases standard use of `JSON.stringify` and
@@ -72,8 +72,8 @@ see simple html page file `./testPage.html`
  in the context of `JSON.stringify` and `JSON.parse` documentation  
  should be assigned to handler methods:
 ```JavaScript
-       h.  replacerUser=replacer;
-       h.  reviverUser=reviver;
+       h.replacerUser = replacer;
+       h.reviverUser = reviver;
 ```
  where `replacer` and `reviver` are functions of two parameters
 ```javaScript
@@ -88,7 +88,7 @@ Why not:
 ```JavaScript
    clone = h.postParse(JSON.parse(JSON.stringify(h.preStringify(o))));
    // or
-   clone1 = JSON.parse(JSON.stringify(o, h.replacer), h.reviver);
+   clone1 = JSON.parse(JSON.stringify(o, h.replacer.bind(h)), h.reviver.bind(h));
 ```   
 
 ## tests 
@@ -129,9 +129,9 @@ To run some test open browser' dev tool and run the following test commands
 ```
  and analyse
 ```JavaScript
- oj = JSON.stringify(o, h.replacer);
+ oj = JSON.stringify(o, h.replacer.bind(h));
  h.circularize(o);
- ojo=JSON.parse(oj, h.reviver);
+ ojo = JSON.parse(oj, h.reviver.bind(h));
 ```
  Differences between these two objects are appropriate to modifications
  determined by user functions `<replacer>` and `<reviver>`.
@@ -146,7 +146,7 @@ To run some test open browser' dev tool and run the following test commands
 ```
  So, consecutive stringify and parse in one line gives:
 ```JavaScript
-   var oOut = JSON.parse(JSON.stringify( outCirc, h.replacer), h.reviver);
+   var oOut = JSON.parse(JSON.stringify( outCirc, h.replacer.bind(h)), h.reviver.bind(h));
 
  // check that oOut is
                 {a :'a', ob: {a:'a', b: []}, arr: [1,2,3]} object but
@@ -154,9 +154,9 @@ To run some test open browser' dev tool and run the following test commands
 ```
  the same result with circularize step:
 ```JavaScript
-      oj = JSON.stringify( oIn, h.replacer);
+      oj = JSON.stringify( oIn, h.replacer.bind(h));
       h.circularize( oIn );
-      oOut = JSON.pars( oj, h.reviver );
+      oOut = JSON.pars( oj, h.reviver.bind(h) );
 
 ```
 ### RegExp JSON - stringify - parse  option 
@@ -459,7 +459,7 @@ The property `unCycle.replacer` provides replacer function which
 could be used as second parameter of `JSON.stringify(o,replacer)` method  
 to stringify the circular object directly by means of `JSON.stringify()`
 ```
-           var oj=JSON.stringify(o,unCycle.replacer);
+           var oj = JSON.stringify(o,unCycle.replacer.bind(unCycle));
 ```
 and returns json string
 ```JavaScript
@@ -507,11 +507,11 @@ similarly in two optional ways:
  - using reviver function provided by method `unCycle.reviver` permiting parse `oj`
 directly using `JSON.parse` with second parameter reviver
 ```
-          var o1 = JSON.parse(oj,reviver);
+          var o1 = JSON.parse(oj, reviver);
 ```
 where riviver function is obtained from the property `unCycle.reviver`:
 ```
-          reviver = unCycle.reviver;
+          reviver = unCycle.reviver.bind(unCycle);
 ```
 So, after parsing we get new object `o1=`
 ```
