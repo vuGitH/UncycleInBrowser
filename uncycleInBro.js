@@ -472,7 +472,7 @@ var unCycle=
       /**
        * `replacer` to use as second parameter of
        * JSON.stringify(o,unCycle.replacerPre.bind(unCycle)) to stringify
-       * pay attention on .bind(unCycle) in the string above
+       * pay attention to .bind(unCycle) in the string above
        * objects with circular references
        * parameters key and value is set by definition of JSON.stringify(...)
        * @param {string} key 
@@ -546,7 +546,7 @@ var unCycle=
        * usage:
        * var rep = unCycle.replacer.bind(unCycle);
        * var oj =  JSON.stringify(o, rep);
-       * pay attention on .bind(unCycle) in the lines above
+       * pay attention to .bind(unCycle) in the lines above
        * 
        * @param {string} key 
        * @param {SerializableO} value 
@@ -573,7 +573,7 @@ var unCycle=
        * usage:
        * var rep = unCycle.replacerWork.bind(unCycle);
        * var oj = JSON.stringify(o, rep);
-       * pay attention on .bind(unCycle) in the lines above
+       * pay attention to .bind(unCycle) in the lines above
 
        * @param {string} key 
        * @param {SerializableO} value 
@@ -658,7 +658,7 @@ var unCycle=
        * usage:
        * var rev = unCycle.reviverWork.bind(unCycle);
        * var ojo = JSON.parse(oj, rev);
-       * pay attention on .bind(unCycle) in the lines above
+       * pay attention to .bind(unCycle) in the lines above
 
        */
       reviverWork: function (key, value) {
@@ -721,7 +721,7 @@ var unCycle=
        * subobjects of the top object handling
        * it is not used in the actual code
        * usage JSON.parse(oj, unCycle.reviverShowUids.bind(unCycle));
-       * pay attention on .bind(unCycle) in the string above
+       * pay attention to .bind(unCycle) in the string above
        */
       reviverShowUids: function (key, value) {
         var uc = this;
