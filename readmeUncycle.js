@@ -23,8 +23,8 @@ var readMeUncycle = function () {
         '\n' +
         '<h3> variant 2:</h3>\n' +
         '\n' +
-        '     <code> oj  = JSON.stringify( o, h.replacer );\n' +
-        '      ojo = JSON.parse    ( oj, h.reviver );</code>\n' +
+        '     <code> oj  = JSON.stringify( o, h.replacer.bind(h) );\n' +
+        '      ojo = JSON.parse    ( oj, h.reviver.bind(h) );</code>\n' +
         '\n' +
         ' <h3>Remark 1:</h3>\n' +
         ' Processing of original object o makes some changes in it.\n' +
@@ -45,9 +45,9 @@ var readMeUncycle = function () {
         '\n' +
         ' v.2\n' +
         '\n' +
-        '      <code>oj = JSON.stringify(o,h.replacer);\n' +
+        '      <code>oj = JSON.stringify(o,h.replacer.bind(h));\n' +
         '      h.circularize(o);              // if any\n' +
-        '      ojo = JSON.parse(oj,h.reviver);</code>\n' +
+        '      ojo = JSON.parse(oj,h.reviver.bind(h));</code>\n' +
         '\n' +
         ' <h3>Remark 2:</h3>\n' +
         ' Variant 2 paraphrases standard use of <code>JSON.stringify</code> and\n' +
@@ -101,9 +101,9 @@ var readMeUncycle = function () {
         '       h.reviverUser = reviver;\n' +
         '\n' +
         ' //and analyse\n\n' +
-        ' oj = JSON.stringify(o, h.replacer);\n' +
+        ' oj = JSON.stringify(o, h.replacer.bind(h));\n' +
         ' h.circularize(o); \n' +
-        ' ojo = JSON.parse(oj, h.reviver);</code>\n' +
+        ' ojo = JSON.parse(oj, h.reviver.bind(h));</code>\n' +
         '\n' +
         ' Differences between these two objects are appropriate to modifications\n' +
         ' determined by user functions <replacer> and <reviver>.\n' +
@@ -117,16 +117,16 @@ var readMeUncycle = function () {
         '\n' +
         ' So, consecutive stringify and parse in one line gives:\n' +
         '\n' +
-        '   <code>var oOut = JSON.parse(JSON.stringify( oIn, h.replacer), h.reviver);</code>\n' +
+        '   <code>var oOut = JSON.parse(JSON.stringify( oIn, h.replacer.bind(h)), h.reviver.bind(h));</code>\n' +
         '\n' +
         ' // check that oOut is\n' +
         '                <code>{a :\'a\', ob: {a:\'a\', b: []}, arr: [1,2,3]} object but\n' +
         '      oIn === oOut ? true : false ; // returns false - another object</code>\n' +
         '\n' +
         ' the same result with circularize step:\n\n' +
-        '      <code>oj = JSON.stringify( oIn, h.replacer);\n' +
+        '      <code>oj = JSON.stringify( oIn, h.replacer.bind(h));\n' +
         '      h.circularize( oIn );\n' +
-        '      oOut = JSON.pars( oj, h.reviver );</code>\n' +
+        '      oOut = JSON.pars( oj, h.reviver.bind(h) );</code>\n' +
         '\n' +
         '\n' +
         '  <h2>* -- Cloning objects with Circular references and RegExp properies\' values-- *</h2>\n\n' +
@@ -135,7 +135,7 @@ var readMeUncycle = function () {
         'values being Circular references and Regular Expressions\n\n' +
         '      <code>clone = h.postParse( JSON.pars(JSON.stringify( h.preStringify(obj))));\n\n' +
         '// or\n\n' +
-        '      clone1 = JSON.parse(JSON.stringify(obj, h.replacer), h.reviver);</code>\n\n' +
+        '      clone1 = JSON.parse(JSON.stringify(obj, h.replacer.bind(h)), h.reviver.bind(h));</code>\n\n' +
         '     <h2>* --- RegExp JSON - stringify - parse  option --- *</h2>\n\n' +
         ' As you could already have noted the property re of testing object o\n' +
         ' is regular expression object and instead of this handler has worked\n' +

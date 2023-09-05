@@ -12,8 +12,8 @@ console.log(otj_post.afterTestStep1);
 // test replacer block
 let ot1 = uc.getTestObj();
 //let ot1_pre = uc.preStringify(ot);
-let otj1 = JSON.stringify(ot1,uc.replacer);
-let otj1_post = JSON.parse(otj1,uc.reviver);
+let otj1 = JSON.stringify(ot1, uc.replacer.bind(uc));
+let otj1_post = JSON.parse(otj1, uc.reviver.bind(uc));
 otj1_post.afterTestStep2 = 'step 2 standard work flow has finished'
 //let otj1_post = uc.postParse(otj_p);
 console.log(otj1_post.afterTestStep2);
@@ -26,7 +26,7 @@ let ojoPP = uc.postParse(ojo);
 // standard use of JSON.parse with second parameter
 // reviver function. Here uc.reviverWork is used as 
 // external function
-let ojoR = JSON.parse(oj,uc.reviverWork);
+let ojoR = JSON.parse(oj, uc.reviverWork.bind(uc));
 
 
 
@@ -36,7 +36,7 @@ console.log(
 // stored in uncycleInBro.js as separate variable     
 uc.reviverUser = reviver;
 // The Usage of unCycle.reviver property after assigning uc.reviverUser
-let ojoRR = JSON.parse(oj,uc.reviver);
+let ojoRR = JSON.parse(oj, uc.reviver.bind(uc));
 console.log(
     'ojoRR.b[2].aa = ',ojoRR.b[2].aa,'\nojoRR.prim.aa = ', ojoRR.prim.aa);
 console.log ('Test is close to finish');
