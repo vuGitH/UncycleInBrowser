@@ -366,3 +366,4 @@ FodyWeavers.xsd
 [1-9].*.*/
 inWork/
 zips/
+.vscode/launch.json
