@@ -471,7 +471,8 @@ var unCycle=
       },
       /**
        * `replacer` to use as second parameter of
-       * JSON.stringify(o,unCycle.replacer) to stringify
+       * JSON.stringify(o,unCycle.replacerPre.bind(unCycle)) to stringify
+       * pay attention on .bind(unCycle) in the string above
        * objects with circular references
        * parameters key and value is set by definition of JSON.stringify(...)
        * @param {string} key 
@@ -481,7 +482,7 @@ var unCycle=
       replacerPre: function (key, value) {
         if (key === '' || key === undefined || !key && (key !== 0)) {
           // unCycle.preStringify(value);
-          var uc = unCycle;
+          var uc = this;
           uc.preStringify(value);         
         }
         return value;
@@ -542,12 +543,17 @@ var unCycle=
        * extending variant of replacer function (inside JSON.stringify(o,replacer))
        * to include typical  modification of json output string determined by
        * user  replacer(key,value) function
+       * usage:
+       * var rep = unCycle.replacer.bind(unCycle);
+       * var oj =  JSON.stringify(o, rep);
+       * pay attention on .bind(unCycle) in the lines above
+       * 
        * @param {string} key 
        * @param {SerializableO} value 
        * @returns {string}
        */
       replacer: function (key, value) {
-        var uc = unCycle;
+        var uc = this;
         if (key === '' || key === undefined || !key && (key !== 0)) {
           uc.preStringify(value);
         } else {
@@ -564,13 +570,18 @@ var unCycle=
        * extending variant of replacer function (inside JSON.stringify(o,replacer))
        * to include typical  modification of json output string determined by
        * user  replacer(key,value) function which has global scope here
+       * usage:
+       * var rep = unCycle.replacerWork.bind(unCycle);
+       * var oj = JSON.stringify(o, rep);
+       * pay attention on .bind(unCycle) in the lines above
+
        * @param {string} key 
        * @param {SerializableO} value 
        * @returns {*}
        */
       replacerWork: function (key, value) {
         var replacerSet;
-        var uc = unCycle;
+        var uc = this;
         if (key === '' || key === undefined || !key && (key !== 0)) {
           uc.preStringify(value);
         } else {
@@ -589,7 +600,7 @@ var unCycle=
           }
         }
         return value;
-      },
+      },      
       /**
        * handle object after being parsed to restore circular references
        * This method does not take into account correction providing in
@@ -631,7 +642,7 @@ var unCycle=
       },
       /**
        * new format of handling `reviver` function - which is
-       * second parameter of JSON.parse(ojo,unCycle.reviver)
+       * second parameter of JSON.parse(ojo,unCycle.reviver.bind(unCycle))
        * Important remark: unCycle.riviver is a `reviver` function
        * being used to restore circular refernces of output object,
        * if they do existed when object had been stringifying, and handles
@@ -644,9 +655,14 @@ var unCycle=
        * codes ).
        * Defifinitions and logic of handling user function `reviver`
        * is determined in general in JSON.parse() documentation.
+       * usage:
+       * var rev = unCycle.reviverWork.bind(unCycle);
+       * var ojo = JSON.parse(oj, rev);
+       * pay attention on .bind(unCycle) in the lines above
+
        */
       reviverWork: function (key, value) {
-        var uc = unCycle; // unCycle instance
+        var uc = this; // unCycle instance
         var reviverSet;
         if (!key) {
           uc.postParse(value);
@@ -669,8 +685,18 @@ var unCycle=
         }
         return value;
       },
+      /**
+       * usage :
+       * ojson - json string previously stingified
+       * var rev =  unCycle.reviver.bind(unCycle);
+       * var ojo = JSON.parse(ojson,rev);
+       * 
+       * @param {*} key 
+       * @param {*} value 
+       * @returns 
+       */
       reviver: function (key, value) {
-        var uc = unCycle;
+        var uc = this;
         if (key === '' || key === undefined || !key && (key !== 0)) {
           uc.postParse(value);
         } else {
@@ -694,9 +720,11 @@ var unCycle=
       /** reviver method preserving `uid` properties of
        * subobjects of the top object handling
        * it is not used in the actual code
+       * usage JSON.parse(oj, unCycle.reviverShowUids.bind(unCycle));
+       * pay attention on .bind(unCycle) in the string above
        */
       reviverShowUids: function (key, value) {
-        var uc = unCycle;
+        var uc = this;
         var reviverSet;
         if (!key) {
           uc.uiDirect.showUids = true;

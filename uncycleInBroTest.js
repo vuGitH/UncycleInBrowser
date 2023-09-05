@@ -133,12 +133,16 @@ var testUncycle = function () {
 
   console.log(oO);
 
-  var oOj = JSON.stringify(oO, unCycle.replacer, 1);
+  var rep = unCycle.replacer.bind(unCycle);
+  var oOj = JSON.stringify(oO, rep, 1);
   it++; txt[it] = '' +
     '\nThe method unCycle.replacer provides replacer function which\n' +
     'could be used as second parameter of JSON.stringify(oO,replacer) method\n' +
     'to serialize the circular object directly by means of JSON.stringify()\n\n' +
-    '     var oOj = JSON.stringify(oO,unCycle.replacer);\n\n' +
+    '     var replacerFunc = unCycle.replacer.bind(unCycle));\n' +
+    '     var oOj = JSON.stringify(oO, replacerFunc);\n\n' +
+    '     or the same in single line form of this script part\n\n' +
+    '     var oOj = JSON.stringify(oO, unCycle.replacer.bind(unCycle));\n\n' +
     'who gives json string \noOj=\n';
   out(txt[it]);
   console.log(oOj);
@@ -160,10 +164,12 @@ var testUncycle = function () {
     'reviver \n\n' +
     '         var o1 = JSON.parse(oOj,reviver);\n' +
     '\nwhere `riviver` function is obtained from equation\n' +
-    '         reviver = unCycle.reviver \n' +
+    '         reviver = unCycle.reviver.bind(unCycle) \n' +
     'So, after parsing we get new object o1 = \n';
   out(txt[it]);
-  var o1 = JSON.parse(oOj, unCycle.reviver);
+  var rev = unCycle.reviver.bind(unCycle);
+  var o1 = JSON.parse(oOj, rev);
+  
   console.log(o1);
   
   console.log('\nOr each property separately:\n');
