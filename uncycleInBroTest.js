@@ -170,7 +170,7 @@ var testUncycle = function () {
   for (var ip in o1) {
     console.log('\n%s :', ip);
     console.log(o1[ip]);
-	}
+  }
   console.log('\nfully equivalent to original circular object.\n\nTest is finished.\n\n');
   console.log('\n\nNow some explanations (Long Read):\n');
   console.log(t());
