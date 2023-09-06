@@ -167,7 +167,7 @@ let regStr =  (function () {
           }
           return (ciphMode) ? o : obAr;
         } else {
-          return null;
+          return o;
         }
       },
       /**
